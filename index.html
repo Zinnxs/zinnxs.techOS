@@ -13,8 +13,8 @@
   --surface2:  #112240;
   --surface3:  #1a3055;
   --border:    rgba(74,222,128,0.12);
-  --accent:    #045e25;
-  --accent2:   #0a7230;
+  --accent:    #16a34a;
+  --accent2:   #4ade80;
   --accent-glow: rgba(22,163,74,0.25);
   --text:      #e2e8f0;
   --text-muted:#6b9e7a;
@@ -77,8 +77,8 @@ body {
 }
 .logo span.accent { color: var(--accent2); }
 .logo-icon {
-  width: 40px; height: 40px;
-  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--cyan));
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   font-size: 0.9rem;
@@ -697,7 +697,7 @@ tbody tr:last-child td { border-bottom: none; }
   font-size: 1.5rem;
   letter-spacing: -0.02em;
 }
-.os-doc-company-name span { color: #005d30; }
+.os-doc-company-name span { color: #4ade80; }
 .os-doc-contact { font-size: 0.78rem; opacity: 0.8; line-height: 1.6; text-align: right; }
 .os-doc-os-num {
   background: rgba(22,163,74,0.2);
@@ -900,6 +900,237 @@ tbody tr:last-child td { border-bottom: none; }
   display: inline-block;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===================== SERVICES PAGE ===================== */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.service-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  position: relative;
+  transition: all 0.2s;
+  overflow: hidden;
+}
+.service-card:hover { transform: translateY(-2px); border-color: rgba(74,222,128,0.3); }
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), #86efac);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.service-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+.service-card-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.3;
+}
+.service-card-category {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(22,163,74,0.12);
+  color: #4ade80;
+  border: 1px solid rgba(74,222,128,0.2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.service-card-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 14px;
+  min-height: 36px;
+}
+.service-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.service-card-price {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #4ade80;
+}
+.service-card-duration {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.service-card-actions { display: flex; gap: 6px; }
+
+/* ===================== MEDIA UPLOAD ===================== */
+.media-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--r-lg);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--surface2);
+  position: relative;
+}
+.media-dropzone:hover, .media-dropzone.drag-over {
+  border-color: var(--accent);
+  background: rgba(22,163,74,0.05);
+}
+.media-dropzone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.media-dropzone-icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.6; }
+.media-dropzone-text { font-size: 0.85rem; color: var(--text-muted); }
+.media-dropzone-hint { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.media-thumb {
+  position: relative;
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--surface3);
+  aspect-ratio: 1;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.18s;
+}
+.media-thumb:hover { border-color: var(--accent); transform: scale(1.02); }
+.media-thumb img, .media-thumb video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.media-thumb .media-del {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  background: rgba(0,0,0,0.75);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.media-thumb:hover .media-del { opacity: 1; }
+.media-thumb .media-type-badge {
+  position: absolute;
+  bottom: 4px; left: 4px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.media-thumb .video-play-icon {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.35);
+  font-size: 1.5rem;
+}
+
+/* ===================== LIGHTBOX ===================== */
+#lightbox {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.94);
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#lightbox.show { display: flex; }
+#lightbox-media { max-width: 90vw; max-height: 80vh; border-radius: 8px; object-fit: contain; }
+#lightbox-close {
+  position: fixed; top: 16px; right: 20px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s;
+}
+#lightbox-close:hover { background: rgba(255,255,255,0.2); }
+#lightbox-caption {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.82rem;
+  margin-top: 12px;
+  text-align: center;
+}
+#lightbox-nav {
+  position: fixed;
+  top: 50%; transform: translateY(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  pointer-events: none;
+}
+#lightbox-nav button {
+  pointer-events: all;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s;
+}
+#lightbox-nav button:hover { background: rgba(255,255,255,0.25); }
+
+/* ===================== OS MEDIA SECTION ===================== */
+.os-media-section {
+  padding: 16px 28px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.os-media-grid-print {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.os-media-grid-print img {
+  width: 100%; aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+@media print {
+  .os-media-section { break-inside: avoid; }
+}
+
 </style>
 </head>
 <body>
@@ -911,10 +1142,7 @@ tbody tr:last-child td { border-bottom: none; }
   </button>
 
   <div class="logo">
-    <div class="logo-icon">
-      <img src="assets/logo.png" alt="Logo Zinnxs Tech" 
-      style="width: 35px; height: 35px; object-fit: contain;">
-    </div>
+    <img src="data:image/png;base64,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" style="height:38px;width:38px;object-fit:contain;border-radius:8px;" alt="Zinnxs Tech">
     <span>Zinnxs<span class="accent">Tech</span></span>
   </div>
 
@@ -947,6 +1175,25 @@ tbody tr:last-child td { border-bottom: none; }
     <span class="nav-badge" id="badge-ordens">0</span>
   </div>
 
+  <div class="nav-item" onclick="navigate('servicos'); closePanels();" id="nav-servicos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    Serviços
+    <span class="nav-badge" id="badge-servicos">0</span>
+  </div>
+
+
+  <div class="nav-item" onclick="navigate('estoque'); closePanels();" id="nav-estoque">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+    Estoque
+    <span class="nav-badge" id="badge-estoque">0</span>
+  </div>
+
+  <div class="nav-item" onclick="navigate('arquivos'); closePanels();" id="nav-arquivos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    Arquivos
+    <span class="nav-badge" id="badge-arquivos">0</span>
+  </div>
+
   <div class="panel-divider"></div>
   <div class="panel-title">Sistema</div>
   <div class="nav-item" id="nav-print" style="display:none" onclick="navigate('print'); closePanels();">
@@ -969,6 +1216,11 @@ tbody tr:last-child td { border-bottom: none; }
     Novo Cliente
   </button>
 
+  <button class="action-btn" onclick="openModalServico(null); closePanels();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    Novo Serviço
+  </button>
+
   <div class="panel-divider"></div>
   <div class="panel-title">Navegar para</div>
 
@@ -983,6 +1235,18 @@ tbody tr:last-child td { border-bottom: none; }
   <button class="action-btn" onclick="navigate('ordens'); closePanels();">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     Ordens de Serviço
+  </button>
+  <button class="action-btn" onclick="navigate('servicos'); closePanels();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    Serviços
+  </button>
+  <button class="action-btn" onclick="navigate('estoque'); closePanels();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+    Estoque
+  </button>
+  <button class="action-btn" onclick="navigate('arquivos'); closePanels();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    Arquivos
   </button>
 </div>
 
@@ -1117,6 +1381,158 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
+
+  <!-- ===== SERVIÇOS ===== -->
+  <div class="page" id="page-servicos">
+    <div class="page-header">
+      <div class="page-title">Serviços</div>
+      <div class="page-subtitle">Catálogo de serviços que você oferece</div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px">
+      <div class="search-wrap" style="flex:1;min-width:200px">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="search-servicos" placeholder="Buscar serviço…" oninput="renderServicos()">
+      </div>
+      <button class="btn btn-primary" onclick="openModalServico(null)">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Serviço
+      </button>
+    </div>
+    <div class="services-grid" id="services-grid">
+      <div class="empty-state" style="grid-column:1/-1;padding:60px 20px">
+        <div class="empty-icon">🔧</div>
+        <p>Nenhum serviço cadastrado ainda</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== ESTOQUE ===== -->
+  <div class="page" id="page-estoque">
+    <div class="page-header">
+      <div class="page-title">Estoque</div>
+      <div class="page-subtitle">Controle de peças, materiais e lucratividade</div>
+    </div>
+    <div class="estoque-header-metrics">
+      <div class="estoque-metric">
+        <div class="estoque-metric-icon em-green">📦</div>
+        <div class="estoque-metric-info"><div class="val" id="est-total-itens">0</div><div class="lbl">Itens cadastrados</div></div>
+      </div>
+      <div class="estoque-metric">
+        <div class="estoque-metric-icon em-amber">💰</div>
+        <div class="estoque-metric-info"><div class="val" id="est-valor-estoque">R$ 0</div><div class="lbl">Valor em estoque (custo)</div></div>
+      </div>
+      <div class="estoque-metric">
+        <div class="estoque-metric-icon em-purple">📈</div>
+        <div class="estoque-metric-info"><div class="val" id="est-receita">R$ 0</div><div class="lbl">Receita peças (mês)</div></div>
+      </div>
+      <div class="estoque-metric">
+        <div class="estoque-metric-icon em-green">💵</div>
+        <div class="estoque-metric-info"><div class="val" id="est-lucro">R$ 0</div><div class="lbl">Lucro estimado (mês)</div></div>
+      </div>
+      <div class="estoque-metric">
+        <div class="estoque-metric-icon em-red">⚠️</div>
+        <div class="estoque-metric-info"><div class="val stock-alert" id="est-alerta">0</div><div class="lbl">Itens com estoque baixo</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <div class="search-wrap" style="flex:1;min-width:200px">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="search-estoque" placeholder="Buscar item…" oninput="renderEstoque()">
+      </div>
+      <button class="btn btn-outline" onclick="navigate('estoque-historico')">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        Histórico
+      </button>
+      <button class="btn btn-primary" onclick="openModalEstoqueItem(null)">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Item
+      </button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Categoria</th>
+            <th>Unid.</th>
+            <th>Qtd. Atual</th>
+            <th>Qtd. Mín.</th>
+            <th>Custo Unit.</th>
+            <th>Preço Venda</th>
+            <th>Margem</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-estoque">
+          <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📦</div><p>Nenhum item cadastrado</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== HISTÓRICO ESTOQUE ===== -->
+  <div class="page" id="page-estoque-historico">
+    <div class="page-header" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div>
+        <div class="page-title">Histórico de Movimentações</div>
+        <div class="page-subtitle">Entradas, saídas e baixas de estoque</div>
+      </div>
+      <button class="btn btn-outline" onclick="navigate('estoque')" style="margin-left:auto">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar
+      </button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Data</th><th>Item</th><th>Tipo</th><th>Qtd.</th><th>Custo</th><th>Motivo / OS</th></tr></thead>
+        <tbody id="tbody-historico">
+          <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><p>Nenhuma movimentação registrada</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== ARQUIVOS ===== -->
+  <div class="page" id="page-arquivos">
+    <div class="page-header">
+      <div class="page-title">Arquivos</div>
+      <div class="page-subtitle">Documentos, planilhas, PDFs e imagens</div>
+    </div>
+    <div class="files-dropzone" id="files-dropzone"
+         ondragover="filesDragOver(event)" ondragleave="filesDragLeave(event)" ondrop="filesDrop(event)">
+      <input type="file" id="files-input" multiple
+             accept=".pdf,.xlsx,.xls,.csv,.doc,.docx,.pptx,.txt,image/*,video/*"
+             onchange="handleArquivos(this.files)">
+      <div style="font-size:2.5rem;margin-bottom:10px">📁</div>
+      <div style="font-size:0.92rem;color:var(--text-muted);font-weight:500">Clique ou arraste arquivos aqui</div>
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-top:4px">PDF, Excel, Word, PowerPoint, CSV, Imagens, Vídeos — máx. 50MB</div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <div class="search-wrap" style="flex:1;min-width:180px">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="search-arquivos" placeholder="Buscar arquivo…" oninput="renderArquivos()">
+      </div>
+      <div class="filter-chips" id="arq-chips">
+        <button class="chip active" data-arqf="todos" onclick="setArqFilter(this,'todos')">Todos</button>
+        <button class="chip" data-arqf="pdf" onclick="setArqFilter(this,'pdf')">PDF</button>
+        <button class="chip" data-arqf="planilha" onclick="setArqFilter(this,'planilha')">Planilhas</button>
+        <button class="chip" data-arqf="imagem" onclick="setArqFilter(this,'imagem')">Imagens</button>
+        <button class="chip" data-arqf="video" onclick="setArqFilter(this,'video')">Vídeos</button>
+        <button class="chip" data-arqf="outro" onclick="setArqFilter(this,'outro')">Outros</button>
+      </div>
+    </div>
+
+    <div class="files-grid" id="files-grid">
+      <div class="empty-state" style="grid-column:1/-1;padding:40px">
+        <div class="empty-icon">📂</div><p>Nenhum arquivo enviado</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== PRINT VIEW ===== -->
   <div class="page" id="page-print">
     <div class="print-toolbar">
@@ -1239,12 +1655,22 @@ tbody tr:last-child td { border-bottom: none; }
 
         <div class="form-group col-full">
           <label class="form-label">Produtos / Serviços Utilizados</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <button class="btn btn-outline btn-sm" onclick="openSvcPicker()">
+              <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              Vincular Serviço do Catálogo
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="openEstoquePicker()">
+              <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              Usar Item do Estoque
+            </button>
+          </div>
           <table class="items-table" id="items-table">
             <thead>
               <tr>
-                <th style="width:70px">Qtd.</th>
+                <th style="width:60px">Qtd.</th>
                 <th>Serviço / Produto</th>
-                <th style="width:110px">Valor Unit. (R$)</th>
+                <th style="width:105px">Valor Unit.</th>
                 <th style="width:40px"></th>
               </tr>
             </thead>
@@ -1253,7 +1679,7 @@ tbody tr:last-child td { border-bottom: none; }
           <div class="add-item-row" style="margin-top:8px">
             <button class="btn btn-outline btn-sm" onclick="addItemRow()">
               <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Adicionar Item
+              Linha Manual
             </button>
           </div>
           <div class="total-display">
@@ -1276,6 +1702,17 @@ tbody tr:last-child td { border-bottom: none; }
           <label class="form-label">Observações</label>
           <textarea class="form-textarea" id="os-observacoes" placeholder="Observações adicionais…"></textarea>
         </div>
+
+        <div class="form-group col-full">
+          <label class="form-label">Fotos e Vídeos do Atendimento</label>
+          <div class="media-dropzone" id="media-dropzone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <input type="file" id="media-input" multiple accept="image/*,video/*" onchange="handleMediaFiles(this.files)">
+            <div class="media-dropzone-icon">📎</div>
+            <div class="media-dropzone-text">Clique ou arraste arquivos aqui</div>
+            <div class="media-dropzone-hint">Imagens (JPG, PNG, WebP) e Vídeos (MP4, MOV) — máx. 50MB por arquivo</div>
+          </div>
+          <div class="media-grid" id="media-preview-grid"></div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1284,6 +1721,213 @@ tbody tr:last-child td { border-bottom: none; }
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         Salvar OS
       </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== MODAL SERVIÇO ===================== -->
+<div class="modal-overlay" id="modal-servico">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-servico-title">Novo Serviço</div>
+      <button class="modal-close" onclick="closeModal('modal-servico')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group col-full">
+          <label class="form-label">Nome do Serviço *</label>
+          <input class="form-input" id="sv-nome" placeholder="Ex: Troca de tela, Formatação, Limpeza…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <input class="form-input" id="sv-categoria" placeholder="Ex: Hardware, Software, Limpeza…" list="categorias-list">
+          <datalist id="categorias-list">
+            <option value="Hardware">
+            <option value="Software">
+            <option value="Limpeza">
+            <option value="Diagnóstico">
+            <option value="Instalação">
+            <option value="Manutenção">
+            <option value="Outros">
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tempo Estimado</label>
+          <input class="form-input" id="sv-tempo" placeholder="Ex: 1h, 2-3 dias…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preço Base (R$)</label>
+          <input class="form-input" id="sv-preco" type="number" min="0" step="0.01" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preço Máximo (R$) <span style="color:var(--text-dim);font-weight:400">(opcional)</span></label>
+          <input class="form-input" id="sv-preco-max" type="number" min="0" step="0.01" placeholder="0,00">
+        </div>
+        <div class="form-group col-full">
+          <label class="form-label">Descrição</label>
+          <textarea class="form-textarea" id="sv-descricao" placeholder="Descreva o que está incluso neste serviço…"></textarea>
+        </div>
+        <div class="form-group col-full">
+          <label class="form-label">Observações / Condições</label>
+          <textarea class="form-textarea" id="sv-obs" placeholder="Ex: Requer diagnóstico prévio. Peças não inclusas…" style="min-height:60px"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-servico')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveServico()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Salvar Serviço
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== LIGHTBOX ===================== -->
+<div id="lightbox" onclick="closeLightbox(event)">
+  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+  <div id="lightbox-nav">
+    <button onclick="lightboxNav(-1)">‹</button>
+    <button onclick="lightboxNav(1)">›</button>
+  </div>
+  <img id="lightbox-img" style="display:none;max-width:90vw;max-height:80vh;border-radius:8px;object-fit:contain">
+  <video id="lightbox-vid" controls style="display:none;max-width:90vw;max-height:80vh;border-radius:8px"></video>
+  <div id="lightbox-caption"></div>
+</div>
+
+
+<!-- ===================== MODAL ITEM ESTOQUE ===================== -->
+<div class="modal-overlay" id="modal-estoque-item">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-est-title">Novo Item</div>
+      <button class="modal-close" onclick="closeModal('modal-estoque-item')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group col-full">
+          <label class="form-label">Nome do Item *</label>
+          <input class="form-input" id="est-nome" placeholder="Ex: Tela iPhone 12, Pasta térmica, SSD 240GB…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <input class="form-input" id="est-categoria" placeholder="Ex: Telas, Baterias, Ferramentas…" list="est-cat-list">
+          <datalist id="est-cat-list">
+            <option value="Telas"><option value="Baterias"><option value="Conectores">
+            <option value="Ferramentas"><option value="Materiais de Limpeza">
+            <option value="SSD / HDD"><option value="Memória RAM"><option value="Outros">
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unidade</label>
+          <select class="form-select" id="est-unidade">
+            <option>un</option><option>kg</option><option>g</option>
+            <option>m</option><option>cm</option><option>litro</option>
+            <option>ml</option><option>par</option><option>caixa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quantidade Inicial</label>
+          <input class="form-input" id="est-qtd" type="number" min="0" step="1" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Qtd. Mínima (alerta)</label>
+          <input class="form-input" id="est-qtd-min" type="number" min="0" step="1" placeholder="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Custo Unitário (R$)</label>
+          <input class="form-input" id="est-custo" type="number" min="0" step="0.01" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preço de Venda (R$)</label>
+          <input class="form-input" id="est-venda" type="number" min="0" step="0.01" placeholder="0,00">
+        </div>
+        <div class="form-group col-full">
+          <label class="form-label">Observações</label>
+          <textarea class="form-textarea" id="est-obs" placeholder="Fornecedor, link, referência…" style="min-height:60px"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-estoque-item')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEstoqueItem()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Salvar Item
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL MOVIMENTAÇÃO ===================== -->
+<div class="modal-overlay" id="modal-movimentacao">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="mov-title">Movimentar Estoque</div>
+      <button class="modal-close" onclick="closeModal('modal-movimentacao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mov-type-tabs">
+        <button class="mov-tab active-entrada" id="tab-entrada" onclick="setMovTab('entrada')">⬆ Entrada</button>
+        <button class="mov-tab" id="tab-saida"   onclick="setMovTab('saida')">⬇ Saída</button>
+        <button class="mov-tab" id="tab-baixa"   onclick="setMovTab('baixa')">🔧 Baixa OS</button>
+      </div>
+      <div id="mov-item-info" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:0.85rem;color:var(--text-muted)"></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Quantidade *</label>
+          <input class="form-input" id="mov-qtd" type="number" min="0.01" step="0.01" placeholder="1">
+        </div>
+        <div class="form-group" id="mov-custo-group">
+          <label class="form-label">Custo Unit. (R$) <span id="mov-custo-hint" style="color:var(--text-dim);font-weight:400;font-size:0.7rem"></span></label>
+          <input class="form-input" id="mov-custo" type="number" min="0" step="0.01" placeholder="0,00">
+        </div>
+        <div class="form-group col-full" id="mov-os-group">
+          <label class="form-label">Vincular OS <span style="color:var(--text-dim);font-weight:400">(opcional)</span></label>
+          <select class="form-select" id="mov-os"><option value="">— nenhuma —</option></select>
+        </div>
+        <div class="form-group col-full">
+          <label class="form-label">Motivo / Observação</label>
+          <input class="form-input" id="mov-motivo" placeholder="Ex: Compra, uso em reparo, ajuste de inventário…">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-movimentacao')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-mov" onclick="saveMovimentacao()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Registrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL SVC PICKER ===================== -->
+<div class="modal-overlay" id="modal-svc-picker">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Selecionar Serviço do Catálogo</div>
+      <button class="modal-close" onclick="closeModal('modal-svc-picker')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input class="form-input" id="svc-picker-search" placeholder="Filtrar serviços…" oninput="renderSvcPicker()" style="margin-bottom:12px">
+      <div class="svc-picker-list" id="svc-picker-list"></div>
+      <div id="svc-picker-empty" style="display:none;text-align:center;padding:30px;color:var(--text-muted);font-size:0.85rem">Nenhum serviço cadastrado</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL ESTOQUE PICKER ===================== -->
+<div class="modal-overlay" id="modal-est-picker">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Usar Item do Estoque</div>
+      <button class="modal-close" onclick="closeModal('modal-est-picker')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input class="form-input" id="est-picker-search" placeholder="Filtrar itens…" oninput="renderEstPicker()" style="margin-bottom:12px">
+      <div class="svc-picker-list" id="est-picker-list"></div>
+      <div id="est-picker-empty" style="display:none;text-align:center;padding:30px;color:var(--text-muted);font-size:0.85rem">Nenhum item no estoque</div>
     </div>
   </div>
 </div>
@@ -1298,8 +1942,8 @@ const DB_KEY = 'zinnxs_tech_db';
 
 function loadDB() {
   try {
-    return JSON.parse(localStorage.getItem(DB_KEY)) || { clientes: [], ordens: [], lastOS: 0 };
-  } catch { return { clientes: [], ordens: [], lastOS: 0 }; }
+    const d = JSON.parse(localStorage.getItem(DB_KEY)) || {}; return { clientes:[], ordens:[], servicos:[], estoque:[], movimentacoes:[], arquivos:[], lastOS:0, ...d };
+  } catch { return { clientes:[], ordens:[], servicos:[], estoque:[], movimentacoes:[], arquivos:[], lastOS:0 }; }
 }
 
 function saveDB(db) {
@@ -1321,6 +1965,10 @@ function navigate(page) {
   if (page === 'dashboard') renderDashboard();
   if (page === 'clientes') renderClientes();
   if (page === 'ordens') renderOrdens();
+  if (page === 'servicos') renderServicos();
+  if (page === 'estoque') renderEstoque();
+  if (page === 'estoque-historico') { renderEstoque(); renderHistorico(); }
+  if (page === 'arquivos') renderArquivos();
 }
 
 // ======================== PANELS ========================
@@ -1600,7 +2248,7 @@ function renderItemsTable(items) {
 }
 
 function itemRowHTML(i, item = {}) {
-  return `<tr id="item-row-${i}" data-idx="${i}">
+  return `<tr id="item-row-${i}" data-idx="${i}" data-estoque-id="${item.estoqueId||''}">
     <td><input type="number" min="0" step="1" placeholder="1" value="${item.qtd||''}" oninput="recalcTotal()" class="item-qtd"></td>
     <td><input type="text" placeholder="Nome do serviço/produto" value="${item.descricao||''}" class="item-desc"></td>
     <td><input type="number" min="0" step="0.01" placeholder="0,00" value="${item.valor||''}" oninput="recalcTotal()" class="item-val"></td>
@@ -1772,8 +2420,13 @@ function viewOS(id) {
     <div class="os-doc">
       <div class="os-doc-header">
         <div>
-          <div class="os-doc-company-name">Zinnxs<span>Tech</span></div>
-          <div style="font-size:0.78rem;opacity:0.75;margin-top:4px">Assistência Técnica</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="data:image/png;base64,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" style="height:44px;width:44px;object-fit:contain;border-radius:8px;background:#fff;padding:2px;" alt="Zinnxs Tech">
+            <div>
+              <div class="os-doc-company-name">Zinnxs<span>Tech</span></div>
+              <div style="font-size:0.78rem;opacity:0.75;margin-top:2px">Assistência Técnica</div>
+            </div>
+          </div>
         </div>
         <div class="os-doc-contact">
           📞 (24) 99922-5630<br>
@@ -1842,6 +2495,18 @@ function viewOS(id) {
           <div class="fin-row"><span class="lbl">Responsável:</span><span class="val">${os.responsavel || '—'}</span></div>
         </div>
       </div>
+
+
+      ${(os.media && os.media.length) ? `
+      <div class="os-media-section">
+        <div class="os-doc-section-title">Registro Fotográfico / Documentação</div>
+        <div class="os-media-grid-print">
+          ${os.media.filter(m => m.type.startsWith('image/')).slice(0, 8).map(m =>
+            `<img src="${m.dataUrl}" alt="${m.name}">`
+          ).join('')}
+        </div>
+        ${os.media.filter(m=>m.type.startsWith('video/')).length ? `<p style="font-size:0.75rem;color:#64748b;margin-top:6px">🎬 ${os.media.filter(m=>m.type.startsWith('video/')).length} vídeo(s) anexado(s) — visualizar no sistema</p>` : ''}
+      </div>` : ''}
 
       <div class="os-warranty">
         ⚠️ <strong>Garantia:</strong> Este serviço prestado possui garantia de 60 dias após a entrega.
@@ -1914,6 +2579,12 @@ function renderDashboard() {
 function updateBadges() {
   document.getElementById('badge-clientes').textContent = db.clientes.length;
   document.getElementById('badge-ordens').textContent = db.ordens.length;
+  if (!db.servicos) db.servicos = [];
+  document.getElementById('badge-servicos').textContent = db.servicos.length;
+  if (!db.estoque) db.estoque=[];
+  document.getElementById('badge-estoque').textContent = db.estoque.length;
+  if (!db.arquivos) db.arquivos=[];
+  document.getElementById('badge-arquivos').textContent = db.arquivos.length;
 }
 
 
@@ -1942,6 +2613,720 @@ document.addEventListener('DOMContentLoaded', () => {
   updateBadges();
   renderDashboard();
 });
+
+// ======================== SERVIÇOS ========================
+let currentServicoId = null;
+
+function openModalServico(id) {
+  currentServicoId = id;
+  const sv = id ? db.servicos.find(s => s.id === id) : null;
+  document.getElementById('modal-servico-title').textContent = sv ? 'Editar Serviço' : 'Novo Serviço';
+  document.getElementById('sv-nome').value       = sv?.nome       || '';
+  document.getElementById('sv-categoria').value  = sv?.categoria  || '';
+  document.getElementById('sv-tempo').value      = sv?.tempo      || '';
+  document.getElementById('sv-preco').value      = sv?.preco      || '';
+  document.getElementById('sv-preco-max').value  = sv?.precoMax   || '';
+  document.getElementById('sv-descricao').value  = sv?.descricao  || '';
+  document.getElementById('sv-obs').value        = sv?.obs        || '';
+  openModal('modal-servico');
+}
+
+function saveServico() {
+  const nome = document.getElementById('sv-nome').value.trim();
+  if (!nome) { toast('Nome do serviço é obrigatório', 'error'); return; }
+  if (!db.servicos) db.servicos = [];
+  const data = {
+    nome,
+    categoria : document.getElementById('sv-categoria').value.trim(),
+    tempo     : document.getElementById('sv-tempo').value.trim(),
+    preco     : parseFloat(document.getElementById('sv-preco').value) || 0,
+    precoMax  : parseFloat(document.getElementById('sv-preco-max').value) || 0,
+    descricao : document.getElementById('sv-descricao').value.trim(),
+    obs       : document.getElementById('sv-obs').value.trim(),
+  };
+  if (currentServicoId) {
+    const idx = db.servicos.findIndex(s => s.id === currentServicoId);
+    db.servicos[idx] = { ...db.servicos[idx], ...data };
+    toast('Serviço atualizado!', 'success');
+  } else {
+    db.servicos.push({ id: uid(), ...data, createdAt: new Date().toISOString() });
+    toast('Serviço cadastrado!', 'success');
+  }
+  saveDB(db);
+  closeModal('modal-servico');
+  renderServicos();
+  updateBadges();
+}
+
+function deleteServico(id) {
+  customConfirm('Tem certeza que deseja excluir este serviço?', () => {
+    db.servicos = db.servicos.filter(s => s.id !== id);
+    saveDB(db);
+    renderServicos();
+    updateBadges();
+    toast('Serviço removido', 'info');
+  });
+}
+
+function renderServicos() {
+  if (!db.servicos) db.servicos = [];
+  const search = (document.getElementById('search-servicos')?.value || '').toLowerCase();
+  const list = db.servicos.filter(s =>
+    s.nome.toLowerCase().includes(search) ||
+    (s.categoria || '').toLowerCase().includes(search) ||
+    (s.descricao || '').toLowerCase().includes(search)
+  );
+  const grid = document.getElementById('services-grid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:60px 20px"><div class="empty-icon">🔧</div><p>${search ? 'Nenhum resultado encontrado' : 'Nenhum serviço cadastrado ainda'}</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(s => {
+    const precoStr = s.precoMax && s.precoMax > s.preco
+      ? `R$ ${s.preco.toFixed(2).replace('.',',')} – R$ ${s.precoMax.toFixed(2).replace('.',',')}`
+      : (s.preco ? `R$ ${s.preco.toFixed(2).replace('.',',')}` : 'Sob consulta');
+    return `
+    <div class="service-card">
+      <div class="service-card-header">
+        <div class="service-card-name">${s.nome}</div>
+        ${s.categoria ? `<span class="service-card-category">${s.categoria}</span>` : ''}
+      </div>
+      <div class="service-card-desc">${s.descricao || '<span style="opacity:0.4">Sem descrição</span>'}</div>
+      ${s.obs ? `<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:10px;background:var(--surface2);padding:7px 10px;border-radius:7px;border-left:2px solid var(--border)">📋 ${s.obs}</div>` : ''}
+      <div class="service-card-footer">
+        <div class="service-card-price">${precoStr}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${s.tempo ? `<span class="service-card-duration">⏱ ${s.tempo}</span>` : ''}
+          <div class="service-card-actions">
+            <button class="btn btn-outline btn-sm" onclick="openModalServico('${s.id}')">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteServico('${s.id}')">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ======================== MEDIA ========================
+let currentMediaFiles = []; // [{id, name, type, dataUrl}]
+let lightboxIndex = 0;
+
+function handleMediaFiles(files) {
+  const maxSize = 50 * 1024 * 1024;
+  Array.from(files).forEach(file => {
+    if (file.size > maxSize) { toast(`${file.name} é grande demais (máx 50MB)`, 'error'); return; }
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) { toast('Tipo de arquivo não suportado', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      currentMediaFiles.push({ id: uid(), name: file.name, type: file.type, dataUrl: e.target.result });
+      renderMediaPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  // reset input so same file can be re-added
+  document.getElementById('media-input').value = '';
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('media-dropzone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+  document.getElementById('media-dropzone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('media-dropzone').classList.remove('drag-over');
+  handleMediaFiles(e.dataTransfer.files);
+}
+
+function renderMediaPreview() {
+  const grid = document.getElementById('media-preview-grid');
+  if (!grid) return;
+  grid.innerHTML = currentMediaFiles.map((m, i) => {
+    const isVideo = m.type.startsWith('video/');
+    return `<div class="media-thumb" onclick="openLightbox(${i})">
+      ${isVideo
+        ? `<video src="${m.dataUrl}" preload="metadata" style="width:100%;height:100%;object-fit:cover"></video>
+           <div class="video-play-icon">▶</div>`
+        : `<img src="${m.dataUrl}" alt="${m.name}">`}
+      <span class="media-type-badge">${isVideo ? 'VID' : 'IMG'}</span>
+      <button class="media-del" onclick="removeMedia(event,'${m.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function removeMedia(e, id) {
+  e.stopPropagation();
+  currentMediaFiles = currentMediaFiles.filter(m => m.id !== id);
+  renderMediaPreview();
+}
+
+// ── Lightbox ──
+function openLightbox(idx) {
+  lightboxIndex = idx;
+  showLightboxItem(idx);
+  document.getElementById('lightbox').classList.add('show');
+}
+
+function showLightboxItem(idx) {
+  const m = currentMediaFiles[idx];
+  if (!m) return;
+  const img = document.getElementById('lightbox-img');
+  const vid = document.getElementById('lightbox-vid');
+  const cap = document.getElementById('lightbox-caption');
+  if (m.type.startsWith('video/')) {
+    img.style.display = 'none';
+    vid.src = m.dataUrl;
+    vid.style.display = 'block';
+  } else {
+    vid.pause(); vid.style.display = 'none';
+    img.src = m.dataUrl;
+    img.style.display = 'block';
+  }
+  cap.textContent = `${m.name}  (${idx + 1} / ${currentMediaFiles.length})`;
+}
+
+function lightboxNav(dir) {
+  const len = currentMediaFiles.length;
+  lightboxIndex = (lightboxIndex + dir + len) % len;
+  showLightboxItem(lightboxIndex);
+}
+
+function closeLightbox(e) {
+  if (e && e.target !== document.getElementById('lightbox') && e.target !== document.getElementById('lightbox-close')) return;
+  document.getElementById('lightbox').classList.remove('show');
+  document.getElementById('lightbox-vid').pause();
+}
+
+document.addEventListener('keydown', e => {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('show')) return;
+  if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  if (e.key === 'ArrowRight') lightboxNav(1);
+});
+
+// ── Patch openModalOS to load/clear media ──
+const _origOpenModalOS = openModalOS;
+openModalOS = function(id) {
+  _origOpenModalOS(id);
+  const os = id ? db.ordens.find(x => x.id === id) : null;
+  currentMediaFiles = os?.media ? JSON.parse(JSON.stringify(os.media)) : [];
+  setTimeout(renderMediaPreview, 50);
+};
+
+// ── Patch saveOS to persist media ──
+const _origSaveOS = saveOS;
+saveOS = function() {
+  // inject media into db before saving
+  const inject = () => {
+    const idx = db.ordens.findIndex(o => o.id === (currentOSId || '__new__'));
+    if (idx >= 0) db.ordens[idx].media = [...currentMediaFiles];
+  };
+  // We need to store media after saveOS writes the record
+  // Override: just add media key before the saveDB call by patching differently
+  const codigo = document.getElementById('os-codigo').value.trim();
+  const clienteId = document.getElementById('os-cliente').value;
+  if (!codigo) { toast('Código da OS é obrigatório', 'error'); return; }
+  if (!clienteId) { toast('Selecione um cliente', 'error'); return; }
+  const data = {
+    codigo, clienteId,
+    responsavel: document.getElementById('os-responsavel').value.trim(),
+    situacao: document.getElementById('os-situacao').value,
+    dataInicio: document.getElementById('os-data-inicio').value,
+    dataEntrega: document.getElementById('os-data-entrega').value,
+    motivo: document.getElementById('os-motivo').value.trim(),
+    servico: document.getElementById('os-servico').value.trim(),
+    produtos: getItemsFromTable(),
+    desconto: parseFloat(document.getElementById('os-desconto').value) || 0,
+    valorTotal: parseFloat(document.getElementById('os-valor-total').value) || 0,
+    observacoes: document.getElementById('os-observacoes').value.trim(),
+    media: [...currentMediaFiles],
+  };
+  if (currentOSId) {
+    const idx = db.ordens.findIndex(o => o.id === currentOSId);
+    db.ordens[idx] = { ...db.ordens[idx], ...data };
+    toast('OS atualizada com sucesso!', 'success');
+  } else {
+    db.ordens.push({ id: uid(), ...data, createdAt: new Date().toISOString() });
+    toast('OS criada com sucesso!', 'success');
+  }
+  saveDB(db);
+  closeModal('modal-os');
+  currentMediaFiles = [];
+  renderOrdens();
+  updateBadges();
+};
+
+
+// ======================== ESTOQUE ========================
+let currentEstoqueId = null;
+let currentMovItemId = null;
+let currentMovTab = 'entrada';
+
+function initDB() {
+  if (!db.servicos)     db.servicos = [];
+  if (!db.estoque)      db.estoque = [];
+  if (!db.movimentacoes) db.movimentacoes = [];
+  if (!db.arquivos)     db.arquivos = [];
+}
+
+function openModalEstoqueItem(id) {
+  initDB();
+  currentEstoqueId = id;
+  const it = id ? db.estoque.find(x => x.id === id) : null;
+  document.getElementById('modal-est-title').textContent = it ? 'Editar Item' : 'Novo Item';
+  document.getElementById('est-nome').value      = it?.nome      || '';
+  document.getElementById('est-categoria').value = it?.categoria || '';
+  document.getElementById('est-unidade').value   = it?.unidade   || 'un';
+  document.getElementById('est-qtd').value       = it ? it.qtd : '';
+  document.getElementById('est-qtd-min').value   = it?.qtdMin    || '1';
+  document.getElementById('est-custo').value     = it?.custo     || '';
+  document.getElementById('est-venda').value     = it?.venda     || '';
+  document.getElementById('est-obs').value       = it?.obs       || '';
+  openModal('modal-estoque-item');
+}
+
+function saveEstoqueItem() {
+  initDB();
+  const nome = document.getElementById('est-nome').value.trim();
+  if (!nome) { toast('Nome é obrigatório', 'error'); return; }
+  const qtdNova = parseFloat(document.getElementById('est-qtd').value) || 0;
+  const data = {
+    nome,
+    categoria : document.getElementById('est-categoria').value.trim(),
+    unidade   : document.getElementById('est-unidade').value,
+    qtd       : qtdNova,
+    qtdMin    : parseFloat(document.getElementById('est-qtd-min').value) || 1,
+    custo     : parseFloat(document.getElementById('est-custo').value)   || 0,
+    venda     : parseFloat(document.getElementById('est-venda').value)   || 0,
+    obs       : document.getElementById('est-obs').value.trim(),
+  };
+  if (currentEstoqueId) {
+    const idx = db.estoque.findIndex(i => i.id === currentEstoqueId);
+    const old = db.estoque[idx];
+    // auto-register diff as movimentação
+    const diff = qtdNova - old.qtd;
+    if (diff !== 0) {
+      db.movimentacoes.push({ id: uid(), itemId: currentEstoqueId, itemNome: nome,
+        tipo: diff > 0 ? 'entrada' : 'ajuste', qtd: Math.abs(diff),
+        custo: data.custo, motivo: 'Ajuste manual', data: new Date().toISOString() });
+    }
+    db.estoque[idx] = { ...old, ...data };
+    toast('Item atualizado!', 'success');
+  } else {
+    const newId = uid();
+    db.estoque.push({ id: newId, ...data, createdAt: new Date().toISOString() });
+    if (qtdNova > 0) {
+      db.movimentacoes.push({ id: uid(), itemId: newId, itemNome: nome,
+        tipo: 'entrada', qtd: qtdNova, custo: data.custo,
+        motivo: 'Estoque inicial', data: new Date().toISOString() });
+    }
+    toast('Item cadastrado!', 'success');
+  }
+  saveDB(db);
+  closeModal('modal-estoque-item');
+  renderEstoque();
+  updateBadges();
+}
+
+function openMovimentacao(itemId) {
+  initDB();
+  currentMovItemId = itemId;
+  const it = db.estoque.find(i => i.id === itemId);
+  if (!it) return;
+  document.getElementById('mov-title').textContent = `Movimentar: ${it.nome}`;
+  document.getElementById('mov-item-info').innerHTML =
+    `<strong>${it.nome}</strong> &nbsp;|&nbsp; Qtd. atual: <strong>${it.qtd} ${it.unidade}</strong> &nbsp;|&nbsp; Custo: <strong>${formatBRL(it.custo)}</strong>`;
+  document.getElementById('mov-qtd').value = '';
+  document.getElementById('mov-custo').value = it.custo || '';
+  document.getElementById('mov-motivo').value = '';
+  // populate OS
+  const sel = document.getElementById('mov-os');
+  sel.innerHTML = '<option value="">— nenhuma —</option>' +
+    db.ordens.map(o => `<option value="${o.id}">${o.codigo} — ${getClienteName(o.clienteId)}</option>`).join('');
+  setMovTab('entrada');
+  openModal('modal-movimentacao');
+}
+
+function setMovTab(tab) {
+  currentMovTab = tab;
+  ['entrada','saida','baixa'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    el.className = 'mov-tab' + (t === tab ? ` active-${t}` : '');
+  });
+  const osGroup = document.getElementById('mov-os-group');
+  const custoHint = document.getElementById('mov-custo-hint');
+  if (tab === 'baixa') {
+    osGroup.style.display = 'block';
+    custoHint.textContent = '(será debitado do custo)';
+  } else {
+    osGroup.style.display = tab === 'saida' ? 'none' : 'block';
+    custoHint.textContent = tab === 'entrada' ? '(atualiza custo médio)' : '';
+  }
+}
+
+function saveMovimentacao() {
+  initDB();
+  const it = db.estoque.find(i => i.id === currentMovItemId);
+  if (!it) return;
+  const qtd = parseFloat(document.getElementById('mov-qtd').value);
+  if (!qtd || qtd <= 0) { toast('Informe a quantidade', 'error'); return; }
+  if ((currentMovTab === 'saida' || currentMovTab === 'baixa') && qtd > it.qtd) {
+    toast('Quantidade maior que o estoque disponível!', 'error'); return;
+  }
+  const custo = parseFloat(document.getElementById('mov-custo').value) || it.custo;
+  const motivo = document.getElementById('mov-motivo').value.trim();
+  const osId   = document.getElementById('mov-os').value;
+  const osRef  = osId ? db.ordens.find(o => o.id === osId)?.codigo : '';
+
+  // update quantity
+  if (currentMovTab === 'entrada') {
+    // recalc weighted avg cost
+    const totalOld = it.qtd * it.custo;
+    const totalNew = qtd * custo;
+    it.qtd += qtd;
+    it.custo = it.qtd > 0 ? (totalOld + totalNew) / it.qtd : custo;
+  } else {
+    it.qtd = Math.max(0, it.qtd - qtd);
+  }
+
+  db.movimentacoes.push({
+    id: uid(), itemId: it.id, itemNome: it.nome,
+    tipo: currentMovTab, qtd, custo,
+    motivo: motivo || (currentMovTab === 'entrada' ? 'Entrada' : currentMovTab === 'baixa' ? 'Baixa OS' : 'Saída'),
+    osId, osRef, data: new Date().toISOString(),
+  });
+
+  const idx = db.estoque.findIndex(i => i.id === it.id);
+  db.estoque[idx] = it;
+  saveDB(db);
+  closeModal('modal-movimentacao');
+  renderEstoque();
+  updateBadges();
+  toast(`Movimentação registrada! Saldo: ${it.qtd} ${it.unidade}`, 'success');
+}
+
+function deleteEstoqueItem(id) {
+  customConfirm('Excluir este item do estoque? O histórico será mantido.', () => {
+    db.estoque = db.estoque.filter(i => i.id !== id);
+    saveDB(db); renderEstoque(); updateBadges();
+    toast('Item removido', 'info');
+  });
+}
+
+function renderEstoque() {
+  initDB();
+  const search = (document.getElementById('search-estoque')?.value || '').toLowerCase();
+  const list = db.estoque.filter(i =>
+    i.nome.toLowerCase().includes(search) || (i.categoria||'').toLowerCase().includes(search)
+  );
+
+  // metrics
+  const totalValor = db.estoque.reduce((s,i) => s + i.qtd * i.custo, 0);
+  const alertas    = db.estoque.filter(i => i.qtd <= i.qtdMin).length;
+  // this month revenue/profit from movimentacoes
+  const now = new Date(); const mes = now.getMonth(); const ano = now.getFullYear();
+  let receitaMes = 0, gastoCusto = 0;
+  db.movimentacoes.filter(m => {
+    const d = new Date(m.data); return d.getMonth()===mes && d.getFullYear()===ano;
+  }).forEach(m => {
+    const it = db.estoque.find(i => i.id === m.itemId);
+    if (m.tipo === 'saida' || m.tipo === 'baixa') {
+      gastoCusto += m.qtd * m.custo;
+      if (it) receitaMes += m.qtd * it.venda;
+    }
+  });
+
+  document.getElementById('est-total-itens').textContent  = db.estoque.length;
+  document.getElementById('est-valor-estoque').textContent = formatBRL(totalValor);
+  document.getElementById('est-receita').textContent      = formatBRL(receitaMes);
+  document.getElementById('est-lucro').textContent        = formatBRL(receitaMes - gastoCusto);
+  document.getElementById('est-alerta').textContent       = alertas;
+
+  const tbody = document.getElementById('tbody-estoque');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📦</div><p>${search?'Nenhum resultado':'Nenhum item cadastrado'}</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(i => {
+    const margem = i.venda > 0 ? ((i.venda - i.custo) / i.venda * 100).toFixed(0) + '%' : '—';
+    const low    = i.qtd <= i.qtdMin;
+    return `<tr class="${low ? 'stock-low-row' : ''}">
+      <td><strong>${i.nome}</strong>${i.obs ? `<div style="font-size:0.72rem;color:var(--text-dim)">${i.obs}</div>` : ''}</td>
+      <td>${i.categoria || '—'}</td>
+      <td>${i.unidade}</td>
+      <td><strong class="${low ? 'stock-alert' : ''}">${i.qtd}${low ? ' ⚠️' : ''}</strong></td>
+      <td style="color:var(--text-muted)">${i.qtdMin}</td>
+      <td>${formatBRL(i.custo)}</td>
+      <td style="color:#4ade80;font-weight:600">${i.venda ? formatBRL(i.venda) : '—'}</td>
+      <td>${margem}</td>
+      <td>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="openMovimentacao('${i.id}')" title="Movimentar">
+            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="openModalEstoqueItem('${i.id}')">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEstoqueItem('${i.id}')">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderHistorico() {
+  initDB();
+  const tbody = document.getElementById('tbody-historico');
+  const list = [...db.movimentacoes].reverse();
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><p>Nenhuma movimentação</p></div></td></tr>`;
+    return;
+  }
+  const tipos = { entrada:'<span style="color:#34d399;font-weight:600">⬆ Entrada</span>',
+                  saida:  '<span style="color:#fca5a5;font-weight:600">⬇ Saída</span>',
+                  baixa:  '<span style="color:#fbbf24;font-weight:600">🔧 Baixa</span>',
+                  ajuste: '<span style="color:#a78bfa;font-weight:600">↔ Ajuste</span>' };
+  tbody.innerHTML = list.map(m => `<tr>
+    <td>${new Date(m.data).toLocaleDateString('pt-BR')}</td>
+    <td><strong>${m.itemNome}</strong></td>
+    <td>${tipos[m.tipo]||m.tipo}</td>
+    <td>${m.qtd}</td>
+    <td>${formatBRL(m.custo)}</td>
+    <td>${m.motivo || '—'}${m.osRef ? ` <span style="color:var(--accent2);font-size:0.75rem">[${m.osRef}]</span>` : ''}</td>
+  </tr>`).join('');
+}
+
+// ======================== SERVICE PICKER (OS) ========================
+function openSvcPicker() {
+  initDB();
+  document.getElementById('svc-picker-search').value = '';
+  renderSvcPicker();
+  openModal('modal-svc-picker');
+}
+
+function renderSvcPicker() {
+  initDB();
+  const q = document.getElementById('svc-picker-search').value.toLowerCase();
+  const list = db.servicos.filter(s =>
+    s.nome.toLowerCase().includes(q) || (s.categoria||'').toLowerCase().includes(q)
+  );
+  const el   = document.getElementById('svc-picker-list');
+  const empt = document.getElementById('svc-picker-empty');
+  if (!list.length) { el.innerHTML = ''; empt.style.display = 'block'; return; }
+  empt.style.display = 'none';
+  el.innerHTML = list.map(s => {
+    const price = s.preco || 0;
+    return `<div class="svc-picker-item" onclick="pickServico('${s.id}')">
+      <div><div class="sp-name">${s.nome}</div><div class="sp-cat">${s.categoria||''} ${s.tempo ? '· '+s.tempo : ''}</div></div>
+      <div class="sp-price">${price ? formatBRL(price) : 'Sob consulta'}</div>
+    </div>`;
+  }).join('');
+}
+
+function pickServico(id) {
+  initDB();
+  const s = db.servicos.find(x => x.id === id);
+  if (!s) return;
+  appendItemToTable({ descricao: s.nome, valor: s.preco || 0, qtd: 1 });
+  closeModal('modal-svc-picker');
+  toast(`"${s.nome}" adicionado à OS`, 'success');
+}
+
+// ======================== ESTOQUE PICKER (OS) ========================
+function openEstoquePicker() {
+  initDB();
+  document.getElementById('est-picker-search').value = '';
+  renderEstPicker();
+  openModal('modal-est-picker');
+}
+
+function renderEstPicker() {
+  initDB();
+  const q    = document.getElementById('est-picker-search').value.toLowerCase();
+  const list = db.estoque.filter(i =>
+    i.qtd > 0 && (i.nome.toLowerCase().includes(q) || (i.categoria||'').toLowerCase().includes(q))
+  );
+  const el   = document.getElementById('est-picker-list');
+  const empt = document.getElementById('est-picker-empty');
+  if (!list.length) { el.innerHTML = ''; empt.style.display = 'block'; return; }
+  empt.style.display = 'none';
+  el.innerHTML = list.map(i => `
+    <div class="svc-picker-item" onclick="pickEstoque('${i.id}')">
+      <div><div class="sp-name">${i.nome}</div><div class="sp-cat">${i.categoria||''} · Saldo: <strong>${i.qtd} ${i.unidade}</strong></div></div>
+      <div class="sp-price">${i.venda ? formatBRL(i.venda) : formatBRL(i.custo)}</div>
+    </div>`).join('');
+}
+
+function pickEstoque(id) {
+  initDB();
+  const i = db.estoque.find(x => x.id === id);
+  if (!i) return;
+  appendItemToTable({ descricao: i.nome, valor: i.venda || i.custo, qtd: 1, estoqueId: i.id });
+  closeModal('modal-est-picker');
+  toast(`"${i.nome}" adicionado (baixa será registrada ao salvar OS)`, 'info');
+}
+
+function appendItemToTable(item) {
+  const tbody = document.getElementById('items-tbody');
+  const row = document.createElement('tr');
+  row.dataset.estoqueId = item.estoqueId || '';
+  row.innerHTML = `
+    <td><input type="number" min="0" step="1" value="${item.qtd||1}" class="item-qtd" oninput="recalcTotal()"></td>
+    <td><input type="text" value="${item.descricao||''}" class="item-desc"></td>
+    <td><input type="number" min="0" step="0.01" value="${item.valor||''}" class="item-val" oninput="recalcTotal()"></td>
+    <td><button class="del-row-btn" onclick="removeItemRow(this)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>`;
+  tbody.appendChild(row);
+  recalcTotal();
+}
+
+// Patch getItemsFromTable to include estoqueId
+const _origGetItems = getItemsFromTable;
+getItemsFromTable = function() {
+  const rows = document.querySelectorAll('#items-tbody tr');
+  return Array.from(rows).map(r => ({
+    qtd: parseFloat(r.querySelector('.item-qtd')?.value) || 0,
+    descricao: r.querySelector('.item-desc')?.value || '',
+    valor: parseFloat(r.querySelector('.item-val')?.value) || 0,
+    estoqueId: r.dataset.estoqueId || '',
+  })).filter(i => i.descricao || i.valor);
+};
+
+// ======================== ARQUIVOS ========================
+let arqFilter = 'todos';
+
+function getFileType(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const mime = file.type || '';
+  if (mime.startsWith('image/')) return 'imagem';
+  if (mime.startsWith('video/')) return 'video';
+  if (ext === 'pdf') return 'pdf';
+  if (['xlsx','xls','csv','ods'].includes(ext)) return 'planilha';
+  if (['doc','docx','odt','txt','rtf'].includes(ext)) return 'documento';
+  if (['pptx','ppt','odp'].includes(ext)) return 'apresentacao';
+  return 'outro';
+}
+
+function fileTypeIcon(type) {
+  const icons = { pdf:'📄', planilha:'📊', documento:'📝', apresentacao:'📑', imagem:'🖼️', video:'🎬', outro:'📎' };
+  return icons[type] || '📎';
+}
+
+function handleArquivos(files) {
+  initDB();
+  const max = 50 * 1024 * 1024;
+  Array.from(files).forEach(file => {
+    if (file.size > max) { toast(`${file.name}: arquivo grande demais (máx 50MB)`, 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      db.arquivos.push({
+        id: uid(), nome: file.name, tipo: getFileType(file),
+        mime: file.type, tamanho: file.size,
+        dataUrl: e.target.result, createdAt: new Date().toISOString(),
+      });
+      saveDB(db);
+      renderArquivos();
+      updateBadges();
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('files-input').value = '';
+}
+
+function filesDragOver(e) { e.preventDefault(); document.getElementById('files-dropzone').classList.add('drag-over'); }
+function filesDragLeave()  { document.getElementById('files-dropzone').classList.remove('drag-over'); }
+function filesDrop(e) { e.preventDefault(); filesDragLeave(); handleArquivos(e.dataTransfer.files); }
+
+function setArqFilter(el, f) {
+  arqFilter = f;
+  document.querySelectorAll('#arq-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderArquivos();
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+function deleteArquivo(id) {
+  initDB();
+  customConfirm('Excluir este arquivo?', () => {
+    db.arquivos = db.arquivos.filter(a => a.id !== id);
+    saveDB(db); renderArquivos(); updateBadges();
+    toast('Arquivo removido', 'info');
+  });
+}
+
+function downloadArquivo(id) {
+  initDB();
+  const a = db.arquivos.find(x => x.id === id);
+  if (!a) return;
+  const link = document.createElement('a');
+  link.href = a.dataUrl;
+  link.download = a.nome;
+  link.click();
+}
+
+function previewArquivo(id) {
+  initDB();
+  const a = db.arquivos.find(x => x.id === id);
+  if (!a) return;
+  if (a.tipo === 'imagem' || a.tipo === 'video') {
+    // use lightbox
+    const fake = [{ id: a.id, name: a.nome, type: a.mime, dataUrl: a.dataUrl }];
+    const bk = currentMediaFiles;
+    currentMediaFiles = fake;
+    openLightbox(0);
+    const origClose = document.getElementById('lightbox-close').onclick;
+    document.getElementById('lightbox-close').onclick = () => {
+      document.getElementById('lightbox').classList.remove('show');
+      document.getElementById('lightbox-vid').pause();
+      currentMediaFiles = bk;
+      document.getElementById('lightbox-close').onclick = origClose;
+    };
+    return;
+  }
+  // open in new tab for PDFs
+  if (a.tipo === 'pdf') { const w = window.open(); w.document.write(`<iframe src="${a.dataUrl}" style="width:100%;height:100%;border:none"></iframe>`); return; }
+  downloadArquivo(id);
+}
+
+function renderArquivos() {
+  initDB();
+  const q = (document.getElementById('search-arquivos')?.value || '').toLowerCase();
+  let list = db.arquivos.filter(a =>
+    a.nome.toLowerCase().includes(q) &&
+    (arqFilter === 'todos' || a.tipo === arqFilter)
+  );
+  const grid = document.getElementById('files-grid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:40px"><div class="empty-icon">📂</div><p>${q||arqFilter!=='todos'?'Nenhum resultado':'Nenhum arquivo enviado'}</p></div>`;
+    return;
+  }
+  grid.innerHTML = [...list].reverse().map(a => `
+    <div class="file-card" onclick="previewArquivo('${a.id}')">
+      <button class="fc-del" onclick="event.stopPropagation();deleteArquivo('${a.id}')">✕</button>
+      ${a.tipo==='imagem' ? `<img src="${a.dataUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">` : `<div class="file-card-icon">${fileTypeIcon(a.tipo)}</div>`}
+      <div class="file-card-name">${a.nome}</div>
+      <div class="file-card-meta">${formatBytes(a.tamanho)}</div>
+      <div class="file-card-actions">
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();downloadArquivo('${a.id}')" title="Baixar">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+
 </script>
 </body>
 </html>
