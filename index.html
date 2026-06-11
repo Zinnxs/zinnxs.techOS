@@ -713,6 +713,16 @@ tbody tr:last-child td { border-bottom: none; }
   <button class="action-btn" onclick="navigate('servicos');closePanels()"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>Serviços</button>
   <button class="action-btn" onclick="navigate('estoque');closePanels()"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Estoque</button>
   <button class="action-btn" onclick="navigate('arquivos');closePanels()"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Arquivos</button>
+  <div class="panel-divider"></div>
+  <div class="panel-title">Backup de Dados</div>
+  <button class="action-btn" onclick="exportarBackup();closePanels()">
+    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Exportar Backup (.json)
+  </button>
+  <button class="action-btn" onclick="importarBackup();closePanels()">
+    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Importar Backup (.json)
+  </button>
 </div>
 
 <!-- ===== MAIN ===== -->
@@ -1287,6 +1297,89 @@ function customConfirm(msg,onConfirm){
   ov.querySelector('#cc-no').onclick=()=>document.body.removeChild(ov);
   ov.querySelector('#cc-yes').onclick=()=>{document.body.removeChild(ov);onConfirm();};
   ov.addEventListener('click',e=>{if(e.target===ov)document.body.removeChild(ov);});
+}
+
+// ===== BACKUP MANUAL (IMPORT/EXPORT) =====
+
+function exportarBackup() {
+  try {
+    // Converte o banco de dados (db) atual em uma string JSON formatada
+    const dataStr = JSON.stringify(db, null, 2);
+    
+    // Cria o arquivo virtual
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    // Cria um link temporário para forçar o download
+    const a = document.createElement("a");
+    a.href = url;
+    
+    // Adiciona a data de hoje no nome do arquivo
+    const dataHoje = new Date().toISOString().slice(0, 10);
+    a.download = `zinnxs_tech_backup_${dataHoje}.json`;
+    
+    // Simula o clique para baixar e depois limpa o link da memória
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast('Backup exportado com sucesso!', 'success');
+  } catch (err) {
+    console.error(err);
+    toast('Erro ao exportar o backup.', 'error');
+  }
+}
+
+function importarBackup() {
+  // Cria um input de arquivo escondido na página
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  // Quando o usuário escolhe um arquivo
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const conteudo = ev.target.result;
+        const dbImportado = JSON.parse(conteudo);
+        
+        // Verifica se o arquivo é realmente um JSON válido
+        if (typeof dbImportado === 'object' && dbImportado !== null) {
+          
+          // Usa a sua função customConfirm para garantir que o usuário não perca dados sem querer
+          customConfirm('A importação irá apagar e substituir TODOS os dados deste navegador. Deseja continuar?', () => {
+            
+            // Sobrescreve o banco local
+            saveDB(dbImportado);
+            toast('Backup importado! Recarregando sistema...', 'success');
+            
+            // Recarrega a página após 1.5s para os novos dados aparecerem na interface
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+            
+          });
+          
+        } else {
+          throw new Error("Formato inválido");
+        }
+      } catch (err) {
+        console.error(err);
+        toast('Erro: Arquivo JSON inválido ou corrompido.', 'error');
+      }
+    };
+    
+    // Lê o conteúdo do JSON
+    reader.readAsText(file);
+  };
+  
+  // Abre a janela para o usuário selecionar o arquivo
+  input.click();
 }
 
 // ===== INIT =====
