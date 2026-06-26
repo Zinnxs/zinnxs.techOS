@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@400;600;700;900&family=Outfit:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-color: #040906; /* Darker base for more contrast */
+  --bg-gradient-start: rgba(0, 150, 75, 0.35); /* Stronger green glow */
+  --panel-color: #0b1911; /* Distinct panels */
+  --border-color: #1a3a25; /* More visible borders */
+  --text-color: #e2f0e7; /* Brighter text */
+  --muted-color: #8fa696; /* Brighter muted text */
+  --accent-color: #008a45;
+  --accent-hover: #00b359;
+  --danger-color: #ef4444;
+  --warn-color: #f59e0b;
+  --grid-opacity: 0.2;
+  --scanline-opacity: 0.2;
+}
+
+.light {
+  --bg-color: #e8f0eb;
+  --bg-gradient-start: rgba(0, 138, 69, 0.25);
+  --panel-color: #ffffff;
+  --border-color: #cbdad1;
+  --text-color: #13241b;
+  --muted-color: #5e7365;
+  --accent-color: #006b37;
+  --accent-hover: #004d27;
+  --danger-color: #dc2626;
+  --warn-color: #d97706;
+  --grid-opacity: 0.1;
+  --scanline-opacity: 0.05;
+}
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Orbitron", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-hud-bg: var(--bg-color);
+  --color-hud-panel: var(--panel-color);
+  --color-hud-border: var(--border-color);
+  --color-hud-text: var(--text-color);
+  --color-hud-muted: var(--muted-color);
+  --color-hud-accent: var(--accent-color);
+  --color-hud-accent-hover: var(--accent-hover);
+  --color-hud-danger: var(--danger-color);
+  --color-hud-warn: var(--warn-color);
+}
+
+@layer base {
+  body {
+    @apply text-hud-text font-sans antialiased overflow-x-hidden min-h-screen relative transition-colors duration-300;
+  }
+
+  /* Grid Background */
+  body::after {
+    content: '';
+    @apply fixed inset-0 pointer-events-none z-[-1] transition-opacity duration-300;
+    background-image:
+      linear-gradient(var(--border-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: var(--grid-opacity);
+  }
+
+  /* Scanlines */
+  body::before {
+    content: '';
+    @apply fixed inset-0 pointer-events-none z-50 mix-blend-overlay transition-opacity duration-300;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.2) 2px,
+      rgba(0, 0, 0, 0.2) 4px
+    );
+    opacity: var(--scanline-opacity);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-hud-bg border-l border-hud-border;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-hud-accent rounded-none;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-hud-accent-hover;
+  }
+}
+
+@layer components {
+  .hud-panel {
+    @apply bg-hud-panel/80 backdrop-blur-md border border-hud-border rounded-none;
+  }
+  
+  .hud-interactive {
+    @apply transition-colors duration-200 border border-hud-border hover:border-hud-accent hover:bg-hud-accent/10;
+  }
+
+  .hud-button-primary {
+    @apply bg-hud-accent text-white hover:bg-hud-accent-hover border border-transparent hover:border-hud-accent-hover transition-all duration-200 uppercase tracking-widest font-mono text-xs font-bold py-2 px-4 flex items-center justify-center gap-2;
+  }
+
+  .hud-button-outline {
+    @apply bg-transparent text-hud-muted hover:text-hud-text border border-hud-border hover:border-hud-accent hover:bg-hud-accent/10 transition-all duration-200 uppercase tracking-widest font-mono text-xs font-bold py-2 px-4 flex items-center justify-center gap-2;
+  }
+
+  .hud-input {
+    @apply bg-hud-bg border border-hud-border text-hud-text font-mono text-sm px-3 py-2 w-full outline-none focus:border-hud-accent focus:ring-1 focus:ring-hud-accent/50 transition-all placeholder:text-hud-muted/50 rounded-none;
+  }
+
+  .hud-label {
+    @apply font-mono text-[10px] tracking-widest uppercase text-hud-muted mb-1 block;
+  }
+}
