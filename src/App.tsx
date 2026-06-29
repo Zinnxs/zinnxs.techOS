@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Topbar } from './components/layout/Topbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { Dashboard } from './components/views/Dashboard';
@@ -7,11 +7,28 @@ import { Ordens } from './components/views/Ordens';
 import { Servicos } from './components/views/Servicos';
 import { Estoque } from './components/views/Estoque';
 import { Arquivos } from './components/views/Arquivos';
+import { CommandPalette } from './components/ui/CommandPalette';
+import { BackupReminder } from './components/ui/BackupReminder';
 import { useAppContext } from './lib/context';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const { db } = useAppContext();
+
+  // Listen for Ctrl+K or Cmd+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Simple router
   const renderView = () => {
@@ -39,13 +56,30 @@ export default function App() {
       <div className="fixed inset-0 pointer-events-none z-[-10] transition-colors duration-500 bg-gradient-to-br from-hud-bg to-hud-panel" />
       <div className="fixed inset-0 pointer-events-none z-[-9] bg-[radial-gradient(ellipse_at_top,var(--bg-gradient-start),transparent_70%)] opacity-100" />
       
-      <Topbar />
+      <Topbar 
+        isMobileMenuOpen={isMobileMenuOpen} 
+        onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)} 
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+      />
       <div className="flex flex-1 overflow-hidden z-0">
-        <Sidebar currentView={currentView} onChangeView={setCurrentView} />
+        <Sidebar 
+          currentView={currentView} 
+          onChangeView={setCurrentView} 
+          isMobileMenuOpen={isMobileMenuOpen}
+          onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
+        />
         <main className="flex-1 overflow-y-auto custom-scrollbar relative z-10 bg-transparent">
           {renderView()}
         </main>
       </div>
+
+      <CommandPalette 
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onChangeView={setCurrentView}
+      />
+
+      <BackupReminder />
     </div>
   );
 }

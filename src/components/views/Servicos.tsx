@@ -70,10 +70,10 @@ export function Servicos() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 max-w-7xl mx-auto"
+      className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
       <header className="mb-8 border-b border-hud-border pb-4">
-        <h1 className="font-display font-black text-3xl text-hud-text tracking-widest uppercase mb-1 flex items-center gap-3">
+        <h1 className="font-display font-black text-2xl sm:text-3xl text-hud-text tracking-widest uppercase mb-1 flex items-center gap-3">
           <span className="text-hud-accent">_</span>Serviços
         </h1>
         <p className="font-mono text-xs text-hud-muted tracking-widest uppercase">

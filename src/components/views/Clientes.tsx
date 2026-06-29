@@ -15,6 +15,8 @@ export function Clientes() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<Partial<Cliente>>({});
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepError, setCepError] = useState('');
 
   const filtered = db.clientes.filter(c => 
     c.nome.toLowerCase().includes(search.toLowerCase()) || 
@@ -22,7 +24,50 @@ export function Clientes() {
     (c.telefone || '').includes(search)
   );
 
+  const handleCepChange = async (value: string) => {
+    const rawCep = value.replace(/\D/g, '');
+    
+    let maskedValue = value;
+    if (rawCep.length <= 8) {
+      if (rawCep.length > 5) {
+        maskedValue = `${rawCep.slice(0, 5)}-${rawCep.slice(5)}`;
+      } else {
+        maskedValue = rawCep;
+      }
+    }
+
+    setFormData(prev => ({ ...prev, cep: maskedValue }));
+    setCepError('');
+
+    if (rawCep.length === 8) {
+      setCepLoading(true);
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${rawCep}/json/`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.erro) {
+            setCepError('CEP NÃO ENCONTRADO');
+          } else {
+            setFormData(prev => ({
+              ...prev,
+              endereco: data.logradouro || '',
+              bairro: data.bairro || '',
+            }));
+          }
+        } else {
+          setCepError('ERRO AO BUSCAR CEP');
+        }
+      } catch (err) {
+        setCepError('CONEXÃO FALHOU');
+      } finally {
+        setCepLoading(false);
+      }
+    }
+  };
+
   const openModal = (id?: string) => {
+    setCepLoading(false);
+    setCepError('');
     if (id) {
       const client = db.clientes.find(c => c.id === id);
       setFormData(client || {});
@@ -71,10 +116,10 @@ export function Clientes() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 max-w-7xl mx-auto"
+      className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
       <header className="mb-8 border-b border-hud-border pb-4">
-        <h1 className="font-display font-black text-3xl text-hud-text tracking-widest uppercase mb-1 flex items-center gap-3">
+        <h1 className="font-display font-black text-2xl sm:text-3xl text-hud-text tracking-widest uppercase mb-1 flex items-center gap-3">
           <span className="text-hud-accent">_</span>Clientes
         </h1>
         <p className="font-mono text-xs text-hud-muted tracking-widest uppercase">
@@ -82,18 +127,18 @@ export function Clientes() {
         </p>
       </header>
 
-      <div className="hud-panel mb-6 flex items-center gap-4 p-4">
-        <div className="relative flex-1">
+      <div className="hud-panel mb-6 flex flex-col sm:flex-row items-center gap-4 p-4">
+        <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-hud-muted" size={16} />
           <input 
             type="text" 
             placeholder="BUSCAR NOME, CPF, TELEFONE..." 
-            className="hud-input pl-10 uppercase"
+            className="hud-input pl-10 uppercase w-full"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button onClick={() => openModal()} className="hud-button-primary">
+        <button onClick={() => openModal()} className="hud-button-primary w-full sm:w-auto whitespace-nowrap">
           <UserPlus size={16} />
           Novo Registro
         </button>
@@ -128,7 +173,7 @@ export function Clientes() {
                     <div className="font-mono text-[10px] text-hud-muted mt-1">{c.email || '—'}</div>
                   </td>
                   <td className="p-3 text-sm text-hud-muted max-w-[200px] truncate">
-                    {[c.endereco, c.bairro].filter(Boolean).join(', ') || '—'}
+                    {[c.endereco, c.numero ? `Nº ${c.numero}` : '', c.bairro].filter(Boolean).join(', ') || '—'}
                   </td>
                   <td className="p-3 text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -192,11 +237,17 @@ export function Clientes() {
             />
           </div>
           <div>
-            <label className="hud-label">CEP</label>
+            <label className="hud-label flex items-center justify-between">
+              <span>CEP</span>
+              {cepLoading && <span className="text-[9px] text-hud-accent animate-pulse">BUSCANDO...</span>}
+              {cepError && <span className="text-[9px] text-hud-danger">{cepError}</span>}
+            </label>
             <input 
-              className="hud-input" 
+              className="hud-input uppercase" 
+              placeholder="00000-000"
+              maxLength={9}
               value={formData.cep || ''} 
-              onChange={e => setFormData({...formData, cep: e.target.value})}
+              onChange={e => handleCepChange(e.target.value)}
             />
           </div>
           <div>
@@ -208,13 +259,24 @@ export function Clientes() {
               onChange={e => setFormData({...formData, email: e.target.value})}
             />
           </div>
-          <div className="md:col-span-2">
-            <label className="hud-label">Endereço</label>
-            <input 
-              className="hud-input" 
-              value={formData.endereco || ''} 
-              onChange={e => setFormData({...formData, endereco: e.target.value})}
-            />
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-3">
+              <label className="hud-label">Endereço</label>
+              <input 
+                className="hud-input" 
+                value={formData.endereco || ''} 
+                onChange={e => setFormData({...formData, endereco: e.target.value})}
+              />
+            </div>
+            <div className="md:col-span-1">
+              <label className="hud-label">Número</label>
+              <input 
+                className="hud-input" 
+                placeholder="Nº"
+                value={formData.numero || ''} 
+                onChange={e => setFormData({...formData, numero: e.target.value})}
+              />
+            </div>
           </div>
           <div className="md:col-span-2">
             <label className="hud-label">Bairro</label>

@@ -173,10 +173,10 @@ export function Estoque() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 max-w-7xl mx-auto"
+      className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
       <header className="mb-8 border-b border-hud-border pb-4">
-        <h1 className="font-display font-black text-3xl text-hud-text tracking-widest uppercase mb-1 flex items-center gap-3">
+        <h1 className="font-display font-black text-2xl sm:text-3xl text-hud-text tracking-widest uppercase mb-1 flex items-center gap-3">
           <span className="text-hud-accent">_</span>Estoque
         </h1>
         <p className="font-mono text-xs text-hud-muted tracking-widest uppercase">
@@ -410,10 +410,10 @@ export function Estoque() {
           </>
         }
       >
-        <div className="flex gap-2 mb-4">
-          <button onClick={() => setMovTab('entrada')} className={cn("px-4 py-2 font-mono text-[10px] tracking-widest uppercase border transition-colors flex-1", movTab === 'entrada' ? 'bg-teal-500/20 border-teal-500 text-teal-400' : 'bg-hud-bg/50 border-hud-border text-hud-muted')}>⬆ Entrada</button>
-          <button onClick={() => setMovTab('saida')} className={cn("px-4 py-2 font-mono text-[10px] tracking-widest uppercase border transition-colors flex-1", movTab === 'saida' ? 'bg-hud-danger/20 border-hud-danger text-hud-danger' : 'bg-hud-bg/50 border-hud-border text-hud-muted')}>⬇ Saída</button>
-          <button onClick={() => setMovTab('baixa')} className={cn("px-4 py-2 font-mono text-[10px] tracking-widest uppercase border transition-colors flex-1", movTab === 'baixa' ? 'bg-hud-warn/20 border-hud-warn text-hud-warn' : 'bg-hud-bg/50 border-hud-border text-hud-muted')}>🔧 Baixa OS</button>
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <button onClick={() => setMovTab('entrada')} className={cn("px-2 py-2 font-mono text-[10px] tracking-widest uppercase border transition-colors text-center truncate", movTab === 'entrada' ? 'bg-teal-500/20 border-teal-500 text-teal-400' : 'bg-hud-bg/50 border-hud-border text-hud-muted')}>⬆ Entrada</button>
+          <button onClick={() => setMovTab('saida')} className={cn("px-2 py-2 font-mono text-[10px] tracking-widest uppercase border transition-colors text-center truncate", movTab === 'saida' ? 'bg-hud-danger/20 border-hud-danger text-hud-danger' : 'bg-hud-bg/50 border-hud-border text-hud-muted')}>⬇ Saída</button>
+          <button onClick={() => setMovTab('baixa')} className={cn("px-2 py-2 font-mono text-[10px] tracking-widest uppercase border transition-colors text-center truncate", movTab === 'baixa' ? 'bg-hud-warn/20 border-hud-warn text-hud-warn' : 'bg-hud-bg/50 border-hud-border text-hud-muted')}>🔧 Baixa</button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

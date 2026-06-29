@@ -3,8 +3,9 @@ import { cn } from '../../lib/utils';
 import { useAppContext } from '../../lib/context';
 import { generateId, formatBRL, formatDate } from '../../lib/db';
 import { motion } from 'motion/react';
-import { Search, FileText, Plus, Edit2, Trash2, Printer } from 'lucide-react';
+import { Search, FileText, Plus, Edit2, Trash2, Printer, X } from 'lucide-react';
 import { Modal } from '../ui/Modal';
+import { PrintOS } from '../ui/PrintOS';
 import { OS, OsItem } from '../../types';
 
 export function Ordens() {
@@ -13,6 +14,7 @@ export function Ordens() {
   const [filter, setFilter] = useState('todos');
   
   const [modalOpen, setModalOpen] = useState(false);
+  const [printOS, setPrintOS] = useState<OS | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<OS>>({ produtos: [] });
@@ -123,10 +125,10 @@ export function Ordens() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 max-w-7xl mx-auto"
+      className="p-4 sm:p-6 max-w-7xl mx-auto"
     >
       <header className="mb-8 border-b border-hud-border pb-4">
-        <h1 className="font-display font-black text-3xl text-hud-text tracking-widest uppercase mb-1 flex items-center gap-3">
+        <h1 className="font-display font-black text-2xl sm:text-3xl text-hud-text tracking-widest uppercase mb-1 flex items-center gap-3">
           <span className="text-hud-accent">_</span>Ordens de Serviço
         </h1>
         <p className="font-mono text-xs text-hud-muted tracking-widest uppercase">
@@ -212,7 +214,7 @@ export function Ordens() {
                   </td>
                   <td className="p-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 border border-hud-border hover:border-hud-accent text-hud-muted hover:text-hud-accent transition-colors bg-hud-bg/50">
+                      <button onClick={() => setPrintOS(o)} className="p-2 border border-hud-border hover:border-hud-accent text-hud-muted hover:text-hud-accent transition-colors bg-hud-bg/50">
                         <Printer size={14} />
                       </button>
                       <button onClick={() => openModal(o.id)} className="p-2 border border-hud-border hover:border-hud-accent text-hud-muted hover:text-hud-accent transition-colors bg-hud-bg/50">
@@ -334,8 +336,8 @@ export function Ordens() {
               </button>
             </div>
             
-            <div className="border border-hud-border bg-hud-bg/50 overflow-hidden">
-              <table className="w-full">
+            <div className="border border-hud-border bg-hud-bg/50 overflow-x-auto custom-scrollbar">
+              <table className="w-full min-w-[500px]">
                 <thead className="bg-hud-panel border-b border-hud-border">
                   <tr>
                     <th className="p-2 font-mono text-[9px] uppercase text-hud-muted text-left w-16">Qtd</th>
@@ -397,9 +399,12 @@ export function Ordens() {
           </div>
         </div>
       </Modal>
+
+      <PrintOS 
+        os={printOS}
+        cliente={printOS ? db.clientes.find(c => c.id === printOS.clienteId) || null : null}
+        onClose={() => setPrintOS(null)}
+      />
     </motion.div>
   );
 }
-
-// Needed to add X icon
-import { X } from 'lucide-react';

@@ -118,3 +118,28 @@
     @apply font-mono text-[10px] tracking-widest uppercase text-hud-muted mb-1 block;
   }
 }
+
+/* @media print custom rules */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  #root {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  body::before, body::after {
+    display: none !important;
+    content: none !important;
+  }
+}
+
