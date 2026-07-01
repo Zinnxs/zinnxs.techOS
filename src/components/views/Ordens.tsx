@@ -20,6 +20,9 @@ export function Ordens() {
   const [formData, setFormData] = useState<Partial<OS>>({ produtos: [] });
   const [items, setItems] = useState<OsItem[]>([]);
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkConfirmDelete, setBulkConfirmDelete] = useState(false);
+
   const getClienteName = (id: string) => db.clientes.find(c => c.id === id)?.nome || '—';
 
   const filtered = db.ordens.filter(o => {
@@ -32,6 +35,109 @@ export function Ordens() {
   const recalcTotal = (currentItems: OsItem[], desc: number = 0) => {
     const sub = currentItems.reduce((acc, i) => acc + (i.qtd * i.valor), 0);
     return Math.max(0, sub - desc);
+  };
+
+  const billingBreakdown = () => {
+    let serviceCount = 0;
+    let serviceTotal = 0;
+    let productCount = 0;
+    let productTotal = 0;
+    let manualCount = 0;
+    let manualTotal = 0;
+
+    items.forEach(item => {
+      const isSvc = db.servicos.some(s => s.nome.toLowerCase() === item.descricao.toLowerCase());
+      const isProd = db.estoque.some(p => p.nome.toLowerCase() === item.descricao.toLowerCase());
+
+      const val = item.qtd * item.valor;
+      if (isSvc) {
+        serviceCount += item.qtd;
+        serviceTotal += val;
+      } else if (isProd) {
+        productCount += item.qtd;
+        productTotal += val;
+      } else {
+        manualCount += item.qtd;
+        manualTotal += val;
+      }
+    });
+
+    const subtotal = serviceTotal + productTotal + manualTotal;
+    const finalTotal = Math.max(0, subtotal - (formData.desconto || 0));
+
+    return {
+      serviceCount,
+      serviceTotal,
+      productCount,
+      productTotal,
+      manualCount,
+      manualTotal,
+      subtotal,
+      finalTotal
+    };
+  };
+
+  const breakdown = billingBreakdown();
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(filtered.map(o => o.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds(prev => [...prev, id]);
+    } else {
+      setSelectedIds(prev => prev.filter(x => x !== id));
+    }
+  };
+
+  const bulkDelete = () => {
+    updateDB(prev => ({
+      ...prev,
+      ordens: prev.ordens.filter(o => !selectedIds.includes(o.id))
+    }));
+    setSelectedIds([]);
+    setBulkConfirmDelete(false);
+  };
+
+  const bulkUpdateStatus = (newStatus: 'Em espera' | 'Em andamento' | 'Concluído' | 'Entregue') => {
+    updateDB(prev => ({
+      ...prev,
+      ordens: prev.ordens.map(o => {
+        if (selectedIds.includes(o.id)) {
+          const prevStatus = o.situacao;
+          if (prevStatus === newStatus) return o;
+
+          const history = o.historico ? [...o.historico] : [
+            {
+              id: generateId(),
+              status: 'Criado' as const,
+              data: o.createdAt || new Date().toISOString(),
+              descricao: 'Ordem de serviço registrada no sistema.'
+            }
+          ];
+
+          history.push({
+            id: generateId(),
+            status: newStatus,
+            data: new Date().toISOString(),
+            descricao: `Situação alterada via ação em massa de "${prevStatus}" para "${newStatus}".`
+          });
+
+          return {
+            ...o,
+            situacao: newStatus,
+            historico: history
+          };
+        }
+        return o;
+      })
+    }));
+    setSelectedIds([]);
   };
 
   const openModal = (id?: string) => {
@@ -68,6 +174,45 @@ export function Ordens() {
 
     updateDB(prev => {
       const copy = { ...prev, ordens: [...prev.ordens] };
+      const nowStr = new Date().toISOString();
+      const existingOs = editingId ? prev.ordens.find(o => o.id === editingId) : null;
+      
+      let history = existingOs?.historico ? [...existingOs.historico] : [];
+      
+      if (editingId && history.length === 0) {
+        history.push({
+          id: generateId(),
+          status: 'Criado',
+          data: existingOs?.createdAt || nowStr,
+          descricao: 'Ordem de serviço registrada no sistema.'
+        });
+      }
+
+      const newStatus = formData.situacao || 'Em espera';
+      
+      if (!editingId) {
+        history.push({
+          id: generateId(),
+          status: 'Criado',
+          data: nowStr,
+          descricao: 'Ordem de serviço inicializada em espera.'
+        });
+      } else if (existingOs && existingOs.situacao !== newStatus) {
+        history.push({
+          id: generateId(),
+          status: newStatus as any,
+          data: nowStr,
+          descricao: `Situação alterada de "${existingOs.situacao}" para "${newStatus}".`
+        });
+      } else {
+        history.push({
+          id: generateId(),
+          status: 'Editado',
+          data: nowStr,
+          descricao: 'Ordem de serviço atualizada (detalhes ou itens).'
+        });
+      }
+
       const osData: OS = {
         ...formData,
         produtos: items,
@@ -76,10 +221,11 @@ export function Ordens() {
         codigo: formData.codigo!,
         clienteId: formData.clienteId!,
         responsavel: formData.responsavel || '',
-        situacao: formData.situacao || 'Em espera',
+        situacao: newStatus as any,
         dataInicio: formData.dataInicio || new Date().toISOString(),
         desconto: formData.desconto || 0,
-        createdAt: formData.createdAt || new Date().toISOString()
+        createdAt: formData.createdAt || nowStr,
+        historico: history
       };
 
       if (editingId) {
@@ -100,6 +246,7 @@ export function Ordens() {
       ordens: prev.ordens.filter(o => o.id !== id)
     }));
     setDeletingId(null);
+    setSelectedIds(prev => prev.filter(x => x !== id));
   };
 
   const addItemRow = () => {
@@ -171,71 +318,194 @@ export function Ordens() {
         </button>
       </div>
 
-      <div className="hud-panel overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-hud-bg/50 border-b border-hud-border">
-              <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted">Código</th>
-              <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted">Cliente</th>
-              <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted">Serviço/Motivo</th>
-              <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted">Situação</th>
-              <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted text-right">Valor</th>
-              <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="p-8 text-center text-hud-muted font-mono text-xs uppercase">
-                  [ Nenhuma OS encontrada ]
-                </td>
-              </tr>
+      {/* Bulk actions banner */}
+      {selectedIds.length > 0 && (
+        <div className="hud-panel border-l-4 border-l-hud-accent bg-hud-panel/90 border border-hud-border mb-6 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs animate-slide-in">
+          <div className="flex items-center gap-3">
+            <div className="px-2 py-1 bg-hud-accent/25 text-hud-accent border border-hud-accent/40 font-bold uppercase tracking-wider text-[10px]">
+              [ {selectedIds.length} ITENS SELECIONADOS ]
+            </div>
+            <span className="text-hud-muted hidden md:inline uppercase text-[9px] tracking-wider">// SELECIONE UMA AÇÃO EM MASSA</span>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap w-full sm:w-auto justify-end">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-hud-muted uppercase tracking-wider">SITUAÇÃO:</span>
+              <select
+                onChange={(e) => {
+                  if (e.target.value) {
+                    bulkUpdateStatus(e.target.value as any);
+                    e.target.value = '';
+                  }
+                }}
+                className="bg-hud-bg border border-hud-border/70 text-hud-text text-[10px] tracking-wider px-2 py-1 outline-none uppercase cursor-pointer rounded-sm"
+                defaultValue=""
+              >
+                <option value="" disabled>ALTERAR EM MASSA...</option>
+                <option value="Em espera">EM ESPERA</option>
+                <option value="Em andamento">EM ANDAMENTO</option>
+                <option value="Concluído">CONCLUÍDO</option>
+                <option value="Entregue">ENTREGUE</option>
+              </select>
+            </div>
+
+            <div className="h-4 w-px bg-hud-border hidden sm:block"></div>
+
+            {bulkConfirmDelete ? (
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-hud-danger font-bold uppercase tracking-wider animate-pulse">CONFIRMA EXCLUSÃO?</span>
+                <button
+                  onClick={bulkDelete}
+                  className="px-2.5 py-1 bg-hud-danger/20 border border-hud-danger text-hud-danger hover:bg-hud-danger hover:text-black font-bold uppercase text-[10px] tracking-wider transition-all"
+                >
+                  SIM
+                </button>
+                <button
+                  onClick={() => setBulkConfirmDelete(false)}
+                  className="px-2.5 py-1 border border-hud-border text-hud-muted hover:text-hud-text font-bold uppercase text-[10px] tracking-wider transition-all"
+                >
+                  NÃO
+                </button>
+              </div>
             ) : (
-              filtered.map((o) => (
-                <tr key={o.id} className="border-b border-hud-border/50 hover:bg-hud-accent/5 transition-colors group">
-                  <td className="p-3 font-display font-bold text-sm tracking-wider text-hud-text group-hover:text-hud-accent">
-                    {o.codigo}
-                  </td>
-                  <td className="p-3 text-sm">{getClienteName(o.clienteId)}</td>
-                  <td className="p-3 text-sm text-hud-muted max-w-[200px] truncate">{o.motivo || o.servico || '—'}</td>
-                  <td className="p-3">
-                    <span className={cn(
-                        "px-2 py-1 font-mono text-[10px] uppercase tracking-wider border",
-                        o.situacao === 'Em espera' ? "bg-hud-warn/10 text-hud-warn border-hud-warn/30" :
-                        o.situacao === 'Em andamento' ? "bg-hud-accent/10 text-hud-accent border-hud-accent/30" :
-                        o.situacao === 'Concluído' ? "bg-teal-500/10 text-teal-400 border-teal-500/30" :
-                        "bg-purple-500/10 text-purple-400 border-purple-500/30"
-                      )}>
-                        {o.situacao}
-                      </span>
-                  </td>
-                  <td className="p-3 font-mono text-xs text-hud-accent font-bold text-right">
-                    {o.valorTotal ? formatBRL(o.valorTotal) : '—'}
-                  </td>
-                  <td className="p-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => setPrintOS(o)} className="p-2 border border-hud-border hover:border-hud-accent text-hud-muted hover:text-hud-accent transition-colors bg-hud-bg/50">
-                        <Printer size={14} />
-                      </button>
-                      <button onClick={() => openModal(o.id)} className="p-2 border border-hud-border hover:border-hud-accent text-hud-muted hover:text-hud-accent transition-colors bg-hud-bg/50">
-                        <Edit2 size={14} />
-                      </button>
-                      {deletingId === o.id ? (
-                        <button onClick={() => remove(o.id)} className="p-2 border border-hud-danger bg-hud-danger/20 text-hud-danger transition-colors font-mono text-[10px] uppercase tracking-widest">
-                          Confirma?
-                        </button>
-                      ) : (
-                        <button onClick={() => setDeletingId(o.id)} className="p-2 border border-hud-border hover:border-hud-danger text-hud-muted hover:text-hud-danger transition-colors bg-hud-bg/50">
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </div>
+              <button
+                onClick={() => setBulkConfirmDelete(true)}
+                className="px-3 py-1 bg-hud-danger/10 border border-hud-danger/40 text-hud-danger hover:bg-hud-danger/20 font-bold uppercase text-[10px] tracking-wider flex items-center gap-1.5 transition-all"
+              >
+                <Trash2 size={12} />
+                EXCLUIR
+              </button>
+            )}
+
+            <button
+              onClick={() => setSelectedIds([])}
+              className="p-1 text-hud-muted hover:text-hud-text"
+              title="Limpar seleção"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="hud-panel overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-hud-bg/50 border-b border-hud-border">
+                <th className="p-3 w-10 text-center">
+                  <input 
+                    type="checkbox" 
+                    className="rounded-xs border-hud-border bg-hud-bg/40 text-hud-accent focus:ring-0 focus:ring-offset-0 cursor-pointer w-4 h-4"
+                    checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                  />
+                </th>
+                <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted">Código</th>
+                <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted">Cliente</th>
+                <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted">Serviço/Motivo</th>
+                <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted">Situação</th>
+                <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted text-right">Valor</th>
+                <th className="p-3 font-mono text-[10px] uppercase tracking-widest text-hud-muted text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-hud-muted font-mono text-xs uppercase">
+                    [ Nenhuma OS encontrada ]
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filtered.map((o) => (
+                  <tr key={o.id} className="border-b border-hud-border/50 hover:bg-hud-accent/5 transition-colors group">
+                    <td className="p-3 text-center">
+                      <input 
+                        type="checkbox" 
+                        className="rounded-xs border-hud-border bg-hud-bg/40 text-hud-accent focus:ring-0 focus:ring-offset-0 cursor-pointer w-4 h-4"
+                        checked={selectedIds.includes(o.id)}
+                        onChange={(e) => handleSelectOne(o.id, e.target.checked)}
+                      />
+                    </td>
+                    <td className="p-3 font-display font-bold text-sm tracking-wider text-hud-text group-hover:text-hud-accent">
+                      {o.codigo}
+                    </td>
+                    <td className="p-3 text-sm">{getClienteName(o.clienteId)}</td>
+                    <td className="p-3 text-sm text-hud-muted max-w-[200px] truncate">{o.motivo || o.servico || '—'}</td>
+                    <td className="p-3">
+                      <span className={cn(
+                          "px-2 py-1 font-mono text-[10px] uppercase tracking-wider border",
+                          o.situacao === 'Em espera' ? "bg-hud-warn/10 text-hud-warn border-hud-warn/30" :
+                          o.situacao === 'Em andamento' ? "bg-hud-accent/10 text-hud-accent border-hud-accent/30" :
+                          o.situacao === 'Concluído' ? "bg-teal-500/10 text-teal-400 border-teal-500/30" :
+                          "bg-purple-500/10 text-purple-400 border-purple-500/30"
+                        )}>
+                          {o.situacao}
+                        </span>
+                    </td>
+                    <td className="p-3 font-mono text-xs text-hud-accent font-bold text-right">
+                      {o.valorTotal ? formatBRL(o.valorTotal) : '—'}
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => setPrintOS(o)} className="p-2 border border-hud-border hover:border-hud-accent text-hud-muted hover:text-hud-accent transition-colors bg-hud-bg/50" title="Imprimir Ordem">
+                          <Printer size={14} />
+                        </button>
+                        <button onClick={() => openModal(o.id)} className="p-2 border border-hud-border hover:border-hud-accent text-hud-muted hover:text-hud-accent transition-colors bg-hud-bg/50" title="Editar Ordem">
+                          <Edit2 size={14} />
+                        </button>
+                        {deletingId === o.id ? (
+                          <button onClick={() => remove(o.id)} className="p-2 border border-hud-danger bg-hud-danger/20 text-hud-danger transition-colors font-mono text-[10px] uppercase tracking-widest">
+                            Confirma?
+                          </button>
+                        ) : (
+                          <button onClick={() => setDeletingId(o.id)} className="p-2 border border-hud-border hover:border-hud-danger text-hud-muted hover:text-hud-danger transition-colors bg-hud-bg/50" title="Deletar Ordem">
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Dynamic Calculation Summary Bar */}
+        <div className="border-t border-hud-border/70 p-4 bg-hud-bg/30 flex flex-col md:flex-row justify-between items-center gap-4 font-mono text-xs uppercase text-hud-muted">
+          <div className="flex flex-wrap gap-4 md:gap-8 justify-center md:justify-start w-full md:w-auto">
+            <div>
+              <span className="text-[10px] tracking-wider block text-hud-muted/60">MOSTRANDO:</span>
+              <span className="text-hud-text font-bold">{filtered.length} REGISTROS</span>
+            </div>
+            <div className="h-8 w-px bg-hud-border/40 hidden sm:block"></div>
+            <div>
+              <span className="text-[10px] tracking-wider block text-hud-muted/60">VALOR TOTAL VISÍVEL:</span>
+              <span className="text-hud-accent font-bold">
+                {formatBRL(filtered.reduce((acc, o) => acc + (o.valorTotal || 0), 0))}
+              </span>
+            </div>
+            <div className="h-8 w-px bg-hud-border/40 hidden sm:block"></div>
+            <div>
+              <span className="text-[10px] tracking-wider block text-hud-muted/60">MÉDIA DOS VALORES:</span>
+              <span className="text-hud-text font-bold">
+                {filtered.length > 0 
+                  ? formatBRL(filtered.reduce((acc, o) => acc + (o.valorTotal || 0), 0) / filtered.length)
+                  : 'R$ 0,00'
+                }
+              </span>
+            </div>
+          </div>
+          {selectedIds.length > 0 && (
+            <div className="bg-hud-accent/10 border border-hud-accent/30 px-3 py-1.5 flex items-center gap-3 w-full md:w-auto justify-between rounded-xs">
+              <span className="text-hud-accent font-bold text-[10px]">SELECIONADOS: {selectedIds.length}</span>
+              <span className="text-hud-accent font-bold">
+                {formatBRL(db.ordens.filter(o => selectedIds.includes(o.id)).reduce((acc, o) => acc + (o.valorTotal || 0), 0))}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       <Modal 
@@ -329,11 +599,69 @@ export function Ordens() {
           </div>
 
           <div className="md:col-span-2 mt-4 border-t border-hud-border pt-4">
-            <div className="flex justify-between items-center mb-2">
-              <label className="hud-label text-hud-text !mb-0">Produtos / Serviços Utilizados</label>
-              <button onClick={addItemRow} className="hud-button-outline !py-1 !text-[10px]">
-                <Plus size={12}/> Adicionar Linha
-              </button>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+              <label className="hud-label text-hud-text !mb-0 font-bold uppercase tracking-wider">// Itens & Serviços Utilizados</label>
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                {db.servicos.length > 0 && (
+                  <select 
+                    onChange={(e) => {
+                      const svcId = e.target.value;
+                      if (!svcId) return;
+                      const svc = db.servicos.find(s => s.id === svcId);
+                      if (svc) {
+                        const newItems = [...items, { descricao: svc.nome, qtd: 1, valor: svc.preco }];
+                        setItems(newItems);
+                        setFormData(prev => ({
+                          ...prev, 
+                          valorTotal: recalcTotal(newItems, prev.desconto || 0)
+                        }));
+                      }
+                      e.target.value = ""; // Reset value
+                    }}
+                    className="bg-hud-bg hover:bg-hud-accent/10 border border-hud-border/70 hover:border-hud-accent/50 text-hud-accent text-[10px] font-mono tracking-wider px-2.5 py-1 outline-none uppercase cursor-pointer rounded-sm transition-all max-w-[180px] sm:max-w-none"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>+ INCLUIR SERVIÇO...</option>
+                    {db.servicos.map(s => (
+                      <option key={s.id} value={s.id} className="bg-hud-panel text-hud-text">
+                        {s.nome.toUpperCase()} ({formatBRL(s.preco)})
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {db.estoque.length > 0 && (
+                  <select 
+                    onChange={(e) => {
+                      const itemId = e.target.value;
+                      if (!itemId) return;
+                      const item = db.estoque.find(i => i.id === itemId);
+                      if (item) {
+                        const newItems = [...items, { descricao: item.nome, qtd: 1, valor: item.venda }];
+                        setItems(newItems);
+                        setFormData(prev => ({
+                          ...prev, 
+                          valorTotal: recalcTotal(newItems, prev.desconto || 0)
+                        }));
+                      }
+                      e.target.value = ""; // Reset value
+                    }}
+                    className="bg-hud-bg hover:bg-hud-accent/10 border border-hud-border/70 hover:border-hud-accent/50 text-hud-accent text-[10px] font-mono tracking-wider px-2.5 py-1 outline-none uppercase cursor-pointer rounded-sm transition-all max-w-[180px] sm:max-w-none"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>+ INCLUIR PRODUTO...</option>
+                    {db.estoque.map(i => (
+                      <option key={i.id} value={i.id} className="bg-hud-panel text-hud-text">
+                        {i.nome.toUpperCase()} ({formatBRL(i.venda)})
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                <button onClick={addItemRow} className="hud-button-outline !py-1 !text-[10px] flex items-center gap-1">
+                  <Plus size={12}/> Manual
+                </button>
+              </div>
             </div>
             
             <div className="border border-hud-border bg-hud-bg/50 overflow-x-auto custom-scrollbar">
@@ -372,31 +700,160 @@ export function Ordens() {
               </table>
             </div>
 
-            <div className="flex justify-end mt-4">
-              <div className="hud-panel p-4 w-full md:w-64 bg-hud-bg/80 border-t-2 border-t-hud-accent">
-                <div className="flex justify-between items-center mb-2 font-mono text-xs text-hud-muted">
-                  <span>SUBTOTAL:</span>
-                  <span>{formatBRL(items.reduce((acc, i) => acc + (i.qtd * i.valor), 0))}</span>
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Detailed Breakdown Panel */}
+              <div className="hud-panel p-4 bg-hud-bg/30 border border-hud-border/60 flex flex-col justify-between font-mono text-[10px] text-hud-muted uppercase tracking-wider space-y-2">
+                <h5 className="font-bold text-hud-text text-xs border-b border-hud-border/40 pb-1.5 mb-1 flex justify-between">
+                  <span>// DETALHAMENTO DE VALORES</span>
+                  <span className="text-hud-accent">REATIVO</span>
+                </h5>
+                <div className="flex justify-between items-center py-0.5">
+                  <span>Serviços ({breakdown.serviceCount} unidades):</span>
+                  <span className="text-hud-text font-bold">{formatBRL(breakdown.serviceTotal)}</span>
                 </div>
-                <div className="flex justify-between items-center mb-3 font-mono text-xs text-hud-muted">
-                  <span>DESCONTO (R$):</span>
-                  <input 
-                    type="number" 
-                    className="hud-input !px-2 !py-0.5 !text-right w-24 !text-xs" 
-                    value={formData.desconto || ''} 
-                    onChange={e => {
-                      const v = parseFloat(e.target.value) || 0;
-                      setFormData(prev => ({...prev, desconto: v, valorTotal: recalcTotal(items, v)}));
-                    }}
-                  />
+                <div className="flex justify-between items-center py-0.5">
+                  <span>Produtos ({breakdown.productCount} unidades):</span>
+                  <span className="text-hud-text font-bold">{formatBRL(breakdown.productTotal)}</span>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t border-hud-border font-display font-bold text-lg text-hud-accent">
+                {breakdown.manualCount > 0 && (
+                  <div className="flex justify-between items-center py-0.5">
+                    <span>Avulsos / Manual ({breakdown.manualCount} unidades):</span>
+                    <span className="text-hud-text font-bold">{formatBRL(breakdown.manualTotal)}</span>
+                  </div>
+                )}
+                <div className="pt-2 border-t border-hud-border/40 flex justify-between items-center font-bold text-hud-text">
+                  <span>SUBTOTAL BRUTO:</span>
+                  <span>{formatBRL(breakdown.subtotal)}</span>
+                </div>
+                {breakdown.subtotal > 0 && (
+                  <div className="w-full bg-hud-bg h-1 border border-hud-border/30 rounded-xs overflow-hidden flex">
+                    {breakdown.serviceTotal > 0 && (
+                      <div 
+                        className="bg-hud-accent h-full" 
+                        style={{ width: `${(breakdown.serviceTotal / breakdown.subtotal) * 100}%` }}
+                        title={`Serviços: ${Math.round((breakdown.serviceTotal / breakdown.subtotal) * 100)}%`}
+                      />
+                    )}
+                    {breakdown.productTotal > 0 && (
+                      <div 
+                        className="bg-purple-500 h-full" 
+                        style={{ width: `${(breakdown.productTotal / breakdown.subtotal) * 100}%` }}
+                        title={`Produtos: ${Math.round((breakdown.productTotal / breakdown.subtotal) * 100)}%`}
+                      />
+                    )}
+                    {breakdown.manualTotal > 0 && (
+                      <div 
+                        className="bg-amber-500 h-full" 
+                        style={{ width: `${(breakdown.manualTotal / breakdown.subtotal) * 100}%` }}
+                        title={`Avulsos: ${Math.round((breakdown.manualTotal / breakdown.subtotal) * 100)}%`}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Total Card */}
+              <div className="hud-panel p-4 bg-hud-bg/80 border-t-2 border-t-hud-accent flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center font-mono text-xs text-hud-muted">
+                    <span>SUBTOTAL:</span>
+                    <span className="font-bold text-hud-text">{formatBRL(breakdown.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between items-center font-mono text-xs text-hud-muted">
+                    <span>DESCONTO (R$):</span>
+                    <input 
+                      type="number" 
+                      className="hud-input !px-2 !py-0.5 !text-right w-24 !text-xs font-bold" 
+                      value={formData.desconto || ''} 
+                      onChange={e => {
+                        const v = parseFloat(e.target.value) || 0;
+                        setFormData(prev => ({...prev, desconto: v, valorTotal: recalcTotal(items, v)}));
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-hud-border flex justify-between items-center font-display font-black text-xl text-hud-accent tracking-wider">
                   <span>TOTAL:</span>
                   <span>{formatBRL(formData.valorTotal || 0)}</span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Order History Timeline */}
+          {editingId && (
+            <div className="md:col-span-2 mt-6 border-t border-hud-border pt-6">
+              <h4 className="font-mono text-xs font-bold text-hud-text uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="text-hud-accent">//</span> HISTÓRICO DE ALTERAÇÕES & LINHA DO TEMPO
+              </h4>
+              
+              <div className="relative border-l border-hud-border/50 ml-3 pl-6 space-y-4">
+                {(() => {
+                  const currentOS = db.ordens.find(o => o.id === editingId);
+                  const historyList = currentOS?.historico && currentOS.historico.length > 0 
+                    ? currentOS.historico 
+                    : [
+                        {
+                          id: 'init',
+                          status: 'Criado' as const,
+                          data: currentOS?.createdAt || currentOS?.dataInicio || new Date().toISOString(),
+                          descricao: 'Ordem de serviço registrada no sistema.'
+                        }
+                      ];
+
+                  // Sort by date descending so newest is at the top
+                  const sortedHistory = [...historyList].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+
+                  return sortedHistory.map((evt) => {
+                    const isCreated = evt.status === 'Criado';
+                    const isEdited = evt.status === 'Editado';
+                    
+                    let bulletColor = "bg-hud-muted border-hud-border";
+                    if (evt.status === 'Em espera') bulletColor = "bg-hud-warn border-hud-warn/80";
+                    else if (evt.status === 'Em andamento') bulletColor = "bg-hud-accent border-hud-accent/80";
+                    else if (evt.status === 'Concluído') bulletColor = "bg-teal-500 border-teal-500/80";
+                    else if (evt.status === 'Entregue') bulletColor = "bg-purple-500 border-purple-500/80";
+                    else if (isCreated) bulletColor = "bg-hud-accent border-hud-accent/80";
+                    else if (isEdited) bulletColor = "bg-hud-muted border-hud-border";
+
+                    return (
+                      <div key={evt.id} className="relative group">
+                        {/* Timeline Bullet */}
+                        <div className={cn(
+                          "absolute -left-[31px] top-1.5 w-3 h-3 rounded-full border flex items-center justify-center transition-all group-hover:scale-110",
+                          bulletColor
+                        )} />
+                        
+                        <div className="hud-panel p-3 bg-hud-bg/25 border border-hud-border/40 hover:border-hud-border/70 transition-all">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 mb-1">
+                            <span className={cn(
+                              "font-mono text-[9px] font-bold px-2 py-0.5 border uppercase tracking-wider",
+                              evt.status === 'Em espera' ? "bg-hud-warn/10 text-hud-warn border-hud-warn/20" :
+                              evt.status === 'Em andamento' ? "bg-hud-accent/10 text-hud-accent border-hud-accent/20" :
+                              evt.status === 'Concluído' ? "bg-teal-500/10 text-teal-400 border-teal-500/20" :
+                              evt.status === 'Entregue' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
+                              isCreated ? "bg-hud-accent/10 text-hud-accent border-hud-accent/20" :
+                              "bg-hud-bg text-hud-muted border-hud-border"
+                            )}>
+                              {evt.status}
+                            </span>
+                            
+                            <span className="font-mono text-[9px] text-hud-muted tracking-wider">
+                              {formatDate(evt.data)} · {new Date(evt.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          
+                          <p className="text-hud-text text-xs font-mono uppercase tracking-wide">
+                            {evt.descricao}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+          )}
         </div>
       </Modal>
 

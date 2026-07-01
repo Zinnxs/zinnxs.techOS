@@ -18,6 +18,13 @@ export interface OsItem {
   valor: number;
 }
 
+export interface OsHistoryEvent {
+  id: string;
+  status: 'Em espera' | 'Em andamento' | 'Concluído' | 'Entregue' | 'Criado' | 'Editado';
+  data: string;
+  descricao: string;
+}
+
 export interface OS {
   id: string;
   codigo: string;
@@ -34,6 +41,7 @@ export interface OS {
   observacoes?: string;
   media?: MediaItem[];
   createdAt: string;
+  historico?: OsHistoryEvent[];
 }
 
 export interface Servico {

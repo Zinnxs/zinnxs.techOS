@@ -9,20 +9,79 @@ import { Estoque } from './components/views/Estoque';
 import { Arquivos } from './components/views/Arquivos';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { BackupReminder } from './components/ui/BackupReminder';
+import { ShortcutsModal } from './components/ui/ShortcutsModal';
 import { useAppContext } from './lib/context';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const { db } = useAppContext();
 
-  // Listen for Ctrl+K or Cmd+K
+  // Listen for Ctrl+K, ? or navigation keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      // 1. Search (Ctrl+K or Cmd+K)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen(prev => !prev);
+        return;
+      }
+
+      // Check if user is typing in an input
+      const active = document.activeElement;
+      const isTyping = active && (
+        active.tagName === 'INPUT' || 
+        active.tagName === 'TEXTAREA' || 
+        active.tagName === 'SELECT' || 
+        active.hasAttribute('contenteditable')
+      );
+
+      // 2. Help Shortcuts (?)
+      if (e.key === '?' && !isTyping) {
+        e.preventDefault();
+        setIsShortcutsOpen(prev => !prev);
+        return;
+      }
+
+      // If user is typing, don't trigger general navigation single-key hotkeys
+      if (isTyping) return;
+
+      // 3. Navigation shortcuts
+      switch (e.key.toLowerCase()) {
+        case '1':
+        case 'd':
+          e.preventDefault();
+          setCurrentView('dashboard');
+          break;
+        case '2':
+        case 'c':
+          e.preventDefault();
+          setCurrentView('clientes');
+          break;
+        case '3':
+        case 'o':
+          e.preventDefault();
+          setCurrentView('ordens');
+          break;
+        case '4':
+        case 's':
+          e.preventDefault();
+          setCurrentView('servicos');
+          break;
+        case '5':
+        case 'e':
+          e.preventDefault();
+          setCurrentView('estoque');
+          break;
+        case '6':
+        case 'a':
+          e.preventDefault();
+          setCurrentView('arquivos');
+          break;
+        default:
+          break;
       }
     };
 
@@ -80,6 +139,10 @@ export default function App() {
       />
 
       <BackupReminder />
+      <ShortcutsModal 
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
     </div>
   );
 }
